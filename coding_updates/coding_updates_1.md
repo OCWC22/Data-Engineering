@@ -103,4 +103,30 @@ This refactoring is a critical step in establishing a clean, scalable foundation
 
 ### Future Work:
 - Add a new data engineering project to the repository to validate the multi-project structure.
-- Create a template or cookiecutter for bootstrapping new projects within this monorepo. 
+- Create a template or cookiecutter for bootstrapping new projects within this monorepo.
+
+---
+# 06-19-25 - Implement Local S3 Environment with MinIO
+
+### Files Updated:
+- `neuralake/docker-compose.yml`: Created to define the local MinIO service.
+- `neuralake/setup_minio.sh`: Created to automate starting MinIO and creating the necessary bucket.
+- `neuralake/README.md`: Updated with instructions for running the MinIO setup script.
+- `.taskmaster/tasks/tasks.json`: Updated all tasks with detailed local-first implementation strategies.
+- `.taskmaster/docs/prd.txt`: Updated the master plan to reflect the zero-cost, local-first strategy.
+
+### Description:
+This update establishes the foundation for our local-first development strategy by setting up a local, S3-compatible object store using MinIO. It includes a Docker Compose file for easy service startup and a shell script to automate the configuration, including the creation of the `neuralake-bucket`. All project tasks in Taskmaster have been updated to reflect this cost-effective approach.
+
+### Reasoning:
+To accelerate development, improve the developer feedback loop, and eliminate cloud costs during the initial build-out phase, we are emulating the AWS S3 environment locally. MinIO is a lightweight, fully S3-compatible server that allows us to develop and test all Delta Lake and cloud storage features without needing an active AWS account. This aligns perfectly with the project's "scale-down" philosophy.
+
+### Trade-offs:
+- This local setup does not test for cloud-specific configurations like IAM roles or network policies. These aspects will need to be addressed in a later stage when we prepare for a true cloud deployment. However, for developing core functionality, this is a significant net positive.
+
+### Considerations:
+The implementation uses Docker Compose for a declarative and reproducible service definition. The `setup_minio.sh` script orchestrates the setup, making the environment easy for any developer to spin up. Using the standard `aws-cli` to interact with the local MinIO endpoint confirms that our tooling and the S3 API calls will be portable to a real AWS environment with minimal changes.
+
+### Future Work:
+- Modify the `neuralake` library's `ParquetTable` to read from the MinIO S3 endpoint instead of the local filesystem.
+- Create a script to upload the sample `parts.parquet` data to the `neuralake-bucket` in MinIO to prepare for the next development stage. 
