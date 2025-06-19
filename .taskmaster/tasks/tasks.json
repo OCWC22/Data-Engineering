@@ -14,13 +14,13 @@
           {
             "id": "1.1",
             "title": "Create Docker Compose file for MinIO",
-            "status": "in-progress",
+            "status": "done",
             "description": "Create a Docker Compose file that defines and runs the MinIO service with appropriate configuration."
           },
           {
             "id": "1.2",
             "title": "Write setup scripts for MinIO",
-            "status": "pending",
+            "status": "done",
             "description": "Create scripts or documentation for starting MinIO and initializing the 'neuralake-bucket' using AWS CLI."
           },
           {

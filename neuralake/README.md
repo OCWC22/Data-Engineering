@@ -95,3 +95,18 @@ This blueprint is your starting point. Fork it. Experiment with it.
 *   **Add a new data source:** Define a new table in `my_tables.py` that reads from a CSV file or pulls data from a live REST API.
 *   **Write complex queries:** Create new queries in `query_data.py` that perform aggregations, window functions, or more complex joins.
 *   **Add dependencies:** Use `poetry add <package-name>` to add new libraries and see UV install them in record time. 
+
+## Setting up the Local S3 Environment (MinIO)
+
+To work with cloud-scale features like Delta Lake, you first need to start the local S3-compatible storage service, MinIO.
+
+1.  **Prerequisites:** Ensure you have `docker` and the `aws-cli` installed on your system.
+
+2.  **Run the Setup Script:**
+    Execute the provided script to start the MinIO container and create the necessary storage bucket.
+    ```bash
+    ./neuralake/setup_minio.sh
+    ```
+
+3.  **Verify Setup:**
+    After the script completes, you can access the MinIO web console at `http://localhost:9001` and log in with the credentials `minioadmin` / `minioadmin`. You should see the `neuralake-bucket` already created. 
