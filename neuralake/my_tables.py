@@ -9,17 +9,34 @@ from neuralake.core import (
 import pyarrow as pa
 import polars as pl
 import os
+from pathlib import Path
+from neuralake.core import Catalog
 
-# Get the absolute path for the parquet file
-# This makes sure the file can be found regardless of where the script is run
-parquet_file_path = os.path.abspath("data/parts.parquet")
+# Define the connection details for our local MinIO S3 instance.
+# The neuralake library will pass these to the underlying query engine (delta-rs).
+S3_STORAGE_OPTIONS = {
+    "AWS_ACCESS_KEY_ID": "minioadmin",
+    "AWS_SECRET_ACCESS_KEY": "minioadmin",
+    "AWS_ENDPOINT_URL": "http://localhost:9000",
+    "AWS_ALLOW_HTTP": "true",
+    "AWS_S3_ALLOW_UNSAFE_RENAME": "true",
+}
 
-# A table backed by a Parquet file
+# Get the absolute path to the project's root directory
+# Note: This is a simple approach for the local demo. In a real application,
+# this might come from a config file or environment variables.
+# BASE_DIR = Path(__file__).parent.parent
+# parquet_file_path = os.path.join(BASE_DIR, "data", "parts.parquet")
+
+# A table backed by a Parquet file stored in S3.
+# The connection details are configured via environment variables
+# in the script that runs the query (see query_data.py).
+# The schema is inferred from the Parquet file at query time.
 part = ParquetTable(
     name="part",
-    uri=f"file://{parquet_file_path}",
+    uri="s3://neuralake-bucket/parts.parquet",
     partitioning=[],
-    description="Information about parts.",
+    description="Information about parts, stored in S3.",
 )
 
 # A table defined as a Python function

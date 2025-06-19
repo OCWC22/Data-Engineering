@@ -55,37 +55,41 @@ Clone the repository and let Poetry handle the rest.
 git clone <your-repo-url>
 cd <your-repo-directory>
 
+# Navigate to the neuralake project directory
+cd neuralake
+
 # Install dependencies into a new virtual environment
 poetry install
 
-# Run the query script
-poetry run python neuralake/neuralake_demo/query_data.py
+# Run the query script to see it query data from the local S3 (MinIO) server
+poetry run python query_data.py
 ```
 
 ### Expected Output
 
-You will see a Polars DataFrame printed to the console, showing the result of joining the parts data (from Parquet) with the supplier data (from the Python function).
+You will see a Polars DataFrame printed to the console, showing the result of querying the `parts.parquet` file stored in the local MinIO S3 bucket.
 
 ```
-Querying data using the neuralake catalog...
+--- Querying 'part' table from S3 ---
 
-Joined data:
-shape: (4, 3)
-┌───────────┬─────────┬────────────┐
-│ p_name    ┆ p_brand ┆ s_name     │
-│ ---       ┆ ---     ┆ ---        │
-│ str       ┆ str     ┆ str        │
-╞═══════════╪═════════╪════════════╡
-│ Part#1    ┆ Brand#1 ┆ Supplier#1 │
-│ Part#2    ┆ Brand#2 ┆ Supplier#2 │
-│ Part#4    ┆ Brand#1 ┆ Supplier#4 │
-│ Part#5    ┆ Brand#2 ┆ Supplier#5 │
-└───────────┴─────────┴────────────┘
+Query successful! Fetched data from S3:
+shape: (5, 4)
+┌───────────┬──────────┬─────────┬───────────────┐
+│ p_partkey ┆ p_name   ┆ p_brand ┆ p_retailprice │
+│ ---       ┆ ---      ┆ ---     ┆ ---           │
+│ i64       ┆ str      ┆ str     ┆ f64           │
+╞═══════════╪══════════╪═════════╪═══════════════╡
+│ 1         ┆ Part#1   ┆ Brand#1 ┆ 10.0          │
+│ 2         ┆ Part#2   ┆ Brand#2 ┆ 20.0          │
+│ 3         ┆ Part#3   ┆ Brand#3 ┆ 30.0          │
+│ 4         ┆ Part#4   ┆ Brand#1 ┆ 40.0          │
+│ 5         ┆ Part#5   ┆ Brand#2 ┆ 50.0          │
+└───────────┴──────────┴─────────┴───────────────┘
 ```
 
 ## Explore Further
 
 This playground is your starting point.
-*   **Dive Deeper:** Read the detailed architectural breakdown in **[ONBOARDING.md](./neuralake/neuralake_demo/ONBOARDING.md)**.
+*   **Dive Deeper:** Read the detailed architectural breakdown in **[ONBOARDING.md](./neuralake/ONBOARDING.md)**.
 *   **Experiment:** Add a new data source in `my_tables.py` (e.g., from a CSV or a live API).
 *   **Build:** Write a new query in `query_data.py` to perform more complex aggregations or transformations.

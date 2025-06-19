@@ -70,23 +70,24 @@ Follow these steps to set up and run the project using the modern toolchain.
     ```
 
 ### Expected Output
-You will see a Polars DataFrame printed to the console, showing the result of joining the parts data (from Parquet) with the supplier data (from the Python function), filtered to include only "Brand#1" and "Brand#2".
+You will see a Polars DataFrame printed to the console, showing the result of querying the `parts.parquet` file from your local MinIO S3 bucket.
 
 ```
-Querying data using the neuralake catalog...
+--- Querying 'part' table from S3 ---
 
-Joined data:
-shape: (4, 3)
-┌───────────┬─────────┬────────────┐
-│ p_name    ┆ p_brand ┆ s_name     │
-│ ---       ┆ ---     ┆ ---        │
-│ str       ┆ str     ┆ str        │
-╞═══════════╪═════════╪════════════╡
-│ Part#1    ┆ Brand#1 ┆ Supplier#1 │
-│ Part#2    ┆ Brand#2 ┆ Supplier#2 │
-│ Part#4    ┆ Brand#1 ┆ Supplier#4 │
-│ Part#5    ┆ Brand#2 ┆ Supplier#5 │
-└───────────┴─────────┴────────────┘
+Query successful! Fetched data from S3:
+shape: (5, 4)
+┌───────────┬──────────┬─────────┬───────────────┐
+│ p_partkey ┆ p_name   ┆ p_brand ┆ p_retailprice │
+│ ---       ┆ ---      ┆ ---     ┆ ---           │
+│ i64       ┆ str      ┆ str     ┆ f64           │
+╞═══════════╪══════════╪═════════╪═══════════════╡
+│ 1         ┆ Part#1   ┆ Brand#1 ┆ 10.0          │
+│ 2         ┆ Part#2   ┆ Brand#2 ┆ 20.0          │
+│ 3         ┆ Part#3   ┆ Brand#3 ┆ 30.0          │
+│ 4         ┆ Part#4   ┆ Brand#1 ┆ 40.0          │
+│ 5         ┆ Part#5   ┆ Brand#2 ┆ 50.0          │
+└───────────┴──────────┴─────────┴───────────────┘
 ```
 
 ## Beyond the Demo
@@ -105,8 +106,20 @@ To work with cloud-scale features like Delta Lake, you first need to start the l
 2.  **Run the Setup Script:**
     Execute the provided script to start the MinIO container and create the necessary storage bucket.
     ```bash
-    ./neuralake/setup_minio.sh
+    ./setup_minio.sh
     ```
 
 3.  **Verify Setup:**
     After the script completes, you can access the MinIO web console at `http://localhost:9001` and log in with the credentials `minioadmin` / `minioadmin`. You should see the `neuralake-bucket` already created. 
+
+4.  **Upload Sample Data:**
+    Run the following command to upload the sample `parts.parquet` file to your new MinIO bucket.
+    ```bash
+    poetry run python upload_sample_data_to_minio.py
+    ```
+
+5.  **Query the S3 Data:**
+    With the local S3 server running and data uploaded, you can now run the main query script.
+    ```bash
+    poetry run python query_data.py
+    ```

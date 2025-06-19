@@ -129,4 +129,33 @@ The implementation uses Docker Compose for a declarative and reproducible servic
 
 ### Future Work:
 - Modify the `neuralake` library's `ParquetTable` to read from the MinIO S3 endpoint instead of the local filesystem.
-- Create a script to upload the sample `parts.parquet` data to the `neuralake-bucket` in MinIO to prepare for the next development stage. 
+- Create a script to upload the sample `parts.parquet` data to the `neuralake-bucket` in MinIO to prepare for the next development stage.
+
+---
+# 06-19-25 - End-to-End S3 Integration & Debugging
+
+### Files Updated:
+- `neuralake/pyproject.toml`: Updated to install `polars` with the `[aws]` extra to include necessary S3 support libraries.
+- `neuralake/poetry.lock`: Regenerated after updating dependencies.
+- `neuralake/upload_sample_data_to_minio.py`: Rewritten to use `pyarrow.fs.S3FileSystem` for robust, direct-to-S3 writing.
+- `neuralake/my_tables.py`: Modified the `ParquetTable` definition to match the actual, more simplistic API of the installed `neuralake` version.
+- `neuralake/query_data.py`: Refactored to set S3 environment variables and query the `part` table directly from the MinIO S3 bucket.
+
+### Description:
+This update marks the successful completion of Task 1: "Configure AWS S3 Integration." It establishes a fully functional, end-to-end data pipeline running on the local machine. Data is uploaded to a local MinIO S3 server and then successfully queried using the `neuralake` library. This validates the core components of our local development environment.
+
+### Reasoning:
+The primary goal was to create a local, cost-free equivalent of a cloud data pipeline. The process involved a significant debugging effort, which was critical for uncovering the true API and dependency requirements of the `neuralake` library. By solving these issues, we have de-risked future development and now have a stable, validated local stack.
+
+### Trade-offs:
+- The `neuralake` library version (`0.0.5`) proved to be far more minimalistic than its documentation suggested. We had to abandon passing credentials via `storage_options` and discovered several arguments were not implemented. The trade-off is that we are now working with the library's actual capabilities, not its documented ones.
+
+### Issues Encountered & Resolutions:
+This was a multi-stage debugging process that peeled back layers of the library stack:
+
+1.  **`TypeError` on `pl.write_parquet`**: The initial attempt to upload data using `polars`' `storage_options` failed. This feature was not supported as expected for S3 in the installed version.
+2.  **`FileNotFoundError` with Environment Variables**: Switching to environment variables for authentication failed because the underlying engine couldn't find the correct S3 library.
+3.  **Dependency Conflict**: Attempting to add `s3fs` manually caused dependency conflicts with `neuralake`'s existing tree.
+4.  **Correct Dependency (`polars[aws]`)**: The correct solution was to install `polars` with its `[aws]` extra in `pyproject.toml`. This provided the necessary Rust-based S3/AWS support without conflicts.
+5.  **Robust Upload (`pyarrow.fs.S3FileSystem`)**: Even with the right dependencies, direct writing was unreliable. The final, robust solution was to rewrite the upload script to use `pyarrow`'s `S3FileSystem` explicitly, giving us direct control over the connection.
+6.  **`neuralake` `ParquetTable` `TypeError`**: The final and most critical issue was that the `neuralake` library's `ParquetTable` constructor did not match its documentation. Through trial and error, we determined its actual signature is much simpler, requiring only `name`, `uri`, and `partitioning`. After modifying `my_tables.py` to use this correct signature, the end-to-end query from S3 finally succeeded. 

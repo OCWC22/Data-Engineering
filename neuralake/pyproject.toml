@@ -9,7 +9,7 @@ package-mode = false
 [tool.poetry.dependencies]
 python = "^3.11"
 neuralake = "0.0.5"
-polars = "1.9.0"
+polars = {version = "1.9.0", extras = ["aws"]}
 pyarrow = "17.0.0"
 
 

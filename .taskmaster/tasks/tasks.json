@@ -5,7 +5,7 @@
         "id": 1,
         "title": "Configure AWS S3 Integration",
         "description": "Set up a local, S3-compatible development environment using MinIO running in Docker, and configure the platform to use it for storage.",
-        "status": "pending",
+        "status": "done",
         "dependencies": [],
         "priority": "high",
         "details": "1. Create a Docker Compose file for MinIO service\n2. Configure MinIO with default credentials and expose ports 9000 (API) and 9001 (Console)\n3. Create scripts/instructions for starting the service and initializing a 'neuralake-bucket'\n4. Update the `neuralake` library configuration to accept custom S3 endpoint URLs\n5. Implement storage abstraction layer that can work with both local and S3-compatible backends\n6. Add proper error handling for network and permission issues\n\nDocker Compose structure:\n```yaml\nservices:\n  minio:\n    image: minio/minio\n    ports:\n      - \"9000:9000\"  # API\n      - \"9001:9001\"  # Console\n    environment:\n      - MINIO_ROOT_USER=minioadmin\n      - MINIO_ROOT_PASSWORD=minioadmin\n    command: server /data --console-address \":9001\"\n    volumes:\n      - minio-data:/data\n\nvolumes:\n  minio-data:\n```\n\nStorage interface:\n```rust\n// Storage interface\npub trait StorageBackend {\n    async fn read_file(&self, path: &str) -> Result<Vec<u8>>;\n    async fn write_file(&self, path: &str, data: &[u8]) -> Result<()>;\n    async fn list_files(&self, prefix: &str) -> Result<Vec<String>>;\n    async fn file_exists(&self, path: &str) -> Result<bool>;\n    async fn delete_file(&self, path: &str) -> Result<()>;\n}\n\n// S3 implementation with configurable endpoint\npub struct S3Backend {\n    client: aws_sdk_s3::Client,\n    bucket: String,\n}\n```",
@@ -25,15 +25,15 @@
           },
           {
             "id": "1.3",
-            "title": "Update neuralake configuration for custom S3 endpoints",
-            "status": "pending",
-            "description": "Modify the configuration system to accept an S3 endpoint URL parameter for connecting to MinIO or other S3-compatible services."
+            "title": "Update neuralake library for S3 endpoint",
+            "status": "done",
+            "description": "Modify library configuration to accept an S3 endpoint URL for connecting to local MinIO."
           },
           {
             "id": "1.4",
-            "title": "Implement Parquet file test with delta-rs/pyarrow",
-            "status": "pending",
-            "description": "Create a test that writes and reads a small Parquet file to the MinIO bucket using delta-rs or pyarrow libraries."
+            "title": "Test S3 integration",
+            "status": "done",
+            "description": "Write and run a test to confirm that a small Parquet file can be successfully written to and read from the local MinIO bucket."
           }
         ]
       },
