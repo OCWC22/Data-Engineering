@@ -1,0 +1,393 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": 1,
+        "title": "Configure AWS S3 Integration",
+        "description": "Set up a local, S3-compatible development environment using MinIO running in Docker, and configure the platform to use it for storage.",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "high",
+        "details": "1. Create a Docker Compose file for MinIO service\n2. Configure MinIO with default credentials and expose ports 9000 (API) and 9001 (Console)\n3. Create scripts/instructions for starting the service and initializing a 'neuralake-bucket'\n4. Update the `neuralake` library configuration to accept custom S3 endpoint URLs\n5. Implement storage abstraction layer that can work with both local and S3-compatible backends\n6. Add proper error handling for network and permission issues\n\nDocker Compose structure:\n```yaml\nservices:\n  minio:\n    image: minio/minio\n    ports:\n      - \"9000:9000\"  # API\n      - \"9001:9001\"  # Console\n    environment:\n      - MINIO_ROOT_USER=minioadmin\n      - MINIO_ROOT_PASSWORD=minioadmin\n    command: server /data --console-address \":9001\"\n    volumes:\n      - minio-data:/data\n\nvolumes:\n  minio-data:\n```\n\nStorage interface:\n```rust\n// Storage interface\npub trait StorageBackend {\n    async fn read_file(&self, path: &str) -> Result<Vec<u8>>;\n    async fn write_file(&self, path: &str, data: &[u8]) -> Result<()>;\n    async fn list_files(&self, prefix: &str) -> Result<Vec<String>>;\n    async fn file_exists(&self, path: &str) -> Result<bool>;\n    async fn delete_file(&self, path: &str) -> Result<()>;\n}\n\n// S3 implementation with configurable endpoint\npub struct S3Backend {\n    client: aws_sdk_s3::Client,\n    bucket: String,\n}\n```",
+        "testStrategy": "1. Verify MinIO Docker container starts correctly and is accessible\n2. Test bucket creation using AWS CLI configured for MinIO endpoint\n3. Unit tests for S3 backend operations with MinIO\n4. Test writing and reading a small Parquet file to 'neuralake-bucket' using delta-rs or pyarrow\n5. Test error handling for connection issues and permissions\n6. Verify the same code works with both MinIO and actual AWS S3 by just changing the endpoint URL",
+        "subtasks": [
+          {
+            "id": "1.1",
+            "title": "Create Docker Compose file for MinIO",
+            "status": "pending",
+            "description": "Create a Docker Compose file that defines and runs the MinIO service with appropriate configuration."
+          },
+          {
+            "id": "1.2",
+            "title": "Write setup scripts for MinIO",
+            "status": "pending",
+            "description": "Create scripts or documentation for starting MinIO and initializing the 'neuralake-bucket' using AWS CLI."
+          },
+          {
+            "id": "1.3",
+            "title": "Update neuralake configuration for custom S3 endpoints",
+            "status": "pending",
+            "description": "Modify the configuration system to accept an S3 endpoint URL parameter for connecting to MinIO or other S3-compatible services."
+          },
+          {
+            "id": "1.4",
+            "title": "Implement Parquet file test with delta-rs/pyarrow",
+            "status": "pending",
+            "description": "Create a test that writes and reads a small Parquet file to the MinIO bucket using delta-rs or pyarrow libraries."
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Develop Scalable Data Generation Utility",
+        "description": "Create a data generation tool capable of producing multi-gigabyte or terabyte-scale datasets with configurable schemas and distributions, using Python with Faker and NumPy libraries.",
+        "status": "pending",
+        "dependencies": [
+          1
+        ],
+        "priority": "high",
+        "details": "1. Design a flexible schema definition format (JSON/YAML)\n2. Implement data generators for common data types (numeric, string, date, etc.) using Faker and NumPy\n3. Support statistical distributions (normal, uniform, zipfian, etc.) via NumPy's distribution functions\n4. Add correlation capabilities between fields\n5. Implement parallel generation for performance\n6. Support direct parallel writing to MinIO in Parquet format to simulate high-throughput\n7. Configure the utility to create many small files rather than few large ones\n8. Add progress reporting and resumability for large generations\n\nExample schema definition:\n```yaml\ntable_name: customer_transactions\nnum_rows: 1000000000  # 1 billion rows\npartitioning:\n  column: transaction_date\n  format: year_month\ncolumns:\n  - name: transaction_id\n    type: uuid\n  - name: customer_id\n    type: int\n    distribution: zipfian\n    range: [1, 10000000]\n  - name: transaction_date\n    type: timestamp\n    range: [2020-01-01, 2023-01-01]\n    distribution: weighted_recent\n  - name: amount\n    type: decimal(10,2)\n    distribution: normal\n    mean: 100.0\n    stddev: 50.0\n```",
+        "testStrategy": "1. Unit tests for each data generator type\n2. Validation tests to ensure generated data matches specified distributions\n3. Performance tests measuring generation speed\n4. Memory usage monitoring during large dataset generation\n5. End-to-end test generating a small dataset and validating schema compliance\n6. Test parallel generation with different thread counts\n7. Test parallel writes to MinIO with various file size configurations\n8. Benchmark throughput with different numbers of small files vs. fewer large files",
+        "subtasks": [
+          {
+            "id": 2.1,
+            "title": "Set up Python environment with Faker and NumPy",
+            "status": "pending"
+          },
+          {
+            "id": 2.2,
+            "title": "Implement schema parser for JSON/YAML configuration",
+            "status": "pending"
+          },
+          {
+            "id": 2.3,
+            "title": "Develop data generators using Faker and NumPy libraries",
+            "status": "pending"
+          },
+          {
+            "id": 2.4,
+            "title": "Implement parallel data generation mechanism",
+            "status": "pending"
+          },
+          {
+            "id": 2.5,
+            "title": "Create MinIO client for parallel file writing",
+            "status": "pending"
+          },
+          {
+            "id": 2.6,
+            "title": "Implement small file generation strategy",
+            "status": "pending"
+          },
+          {
+            "id": 2.7,
+            "title": "Add progress tracking and resumability features",
+            "status": "pending"
+          },
+          {
+            "id": 2.8,
+            "title": "Write tests for data generation and MinIO integration",
+            "status": "pending"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Implement Core Delta Lake Table Functionality",
+        "description": "Implement a DeltaTable class that leverages the delta-rs library to provide ACID transactions, schema evolution, and time travel capabilities against MinIO storage.",
+        "status": "pending",
+        "dependencies": [
+          1
+        ],
+        "priority": "high",
+        "details": "1. Integrate the delta-rs library into our project\n2. Create a DeltaTable struct that wraps delta-rs functionality\n3. Configure delta-rs to work with our MinIO storage backend\n4. Expose ACID transaction capabilities\n5. Support schema evolution through the delta-rs API\n6. Implement time travel queries with timestamp and version\n7. Handle metadata operations for Delta tables\n\n```rust\npub struct DeltaTable {\n    path: String,\n    storage: Box<dyn StorageBackend>,\n    delta_table: deltalake::DeltaTable,\n    current_version: i64,\n}\n\nimpl DeltaTable {\n    pub async fn new(path: &str, storage: Box<dyn StorageBackend>) -> Result<Self> { ... }\n    pub async fn read(&self, predicate: Option<Predicate>) -> Result<DataFrame> { ... }\n    pub async fn write(&mut self, df: DataFrame, mode: WriteMode) -> Result<()> { ... }\n    pub async fn update(&mut self, predicate: Predicate, updates: HashMap<String, Expr>) -> Result<()> { ... }\n    pub async fn delete(&mut self, predicate: Predicate) -> Result<()> { ... }\n    pub async fn time_travel(&self, version: Option<i64>, timestamp: Option<DateTime<Utc>>) -> Result<Self> { ... }\n    pub async fn vacuum(&mut self, retention_hours: Option<i64>) -> Result<()> { ... }\n    \n    // Helper methods to interact with delta-rs\n    fn configure_minio_storage(&self) -> Result<deltalake::storage::StorageConfig> { ... }\n    async fn load_table_from_minio(&self, version: Option<i64>) -> Result<deltalake::DeltaTable> { ... }\n}\n```",
+        "testStrategy": "1. Unit tests for Delta table operations using delta-rs\n2. Integration tests for ACID transaction guarantees against MinIO\n3. Concurrency tests with multiple writers to verify transaction isolation\n4. Schema evolution tests to ensure compatibility\n5. Time travel functionality tests with different versions and timestamps\n6. Test recovery from interrupted transactions\n7. Performance tests for read/write operations with MinIO\n8. Verify compatibility with tables created by the official Delta Lake format",
+        "subtasks": []
+      },
+      {
+        "id": 4,
+        "title": "Implement Low-Latency Writer Pattern",
+        "description": "Create separate processes for writing, compaction, and vacuuming to handle the 'small file problem' as described in the ONBOARDING.md.",
+        "status": "pending",
+        "dependencies": [
+          3
+        ],
+        "priority": "medium",
+        "details": "1. Design a service architecture with three distinct, concurrent processes:\n   - Writer process for continuously appending small files to a Delta table on MinIO\n   - Compaction process (scheduled via cron) to merge small files into larger, optimized ones\n   - Vacuum process to clean up stale, unreferenced files older than a set retention period\n2. Implement inter-process communication and coordination\n3. Create file size monitoring and triggering logic\n4. Implement intelligent compaction strategies (time-based, size-based)\n5. Add configuration options for tuning each process\n\n```rust\n// Writer process\npub struct DeltaWriter {\n    table_path: String,\n    batch_size: usize,\n    flush_interval: Duration,\n    buffer: Vec<Row>,\n    last_flush: Instant,\n    minio_client: MinioClient,\n}\n\n// Compaction process\npub struct DeltaCompactor {\n    table_path: String,\n    min_file_size: usize,\n    target_file_size: usize,\n    check_interval: Duration,\n    minio_client: MinioClient,\n}\n\n// Vacuum process\npub struct DeltaVacuum {\n    table_path: String,\n    retention_hours: i64,\n    run_interval: Duration,\n    minio_client: MinioClient,\n}\n```",
+        "testStrategy": "1. Unit tests for each service component\n2. Integration tests for the complete write-compact-vacuum cycle\n3. Performance tests measuring write latency under various loads\n4. Stress tests with high-frequency small writes\n5. Test recovery scenarios after service failures\n6. Measure and validate file size distributions after compaction\n7. Test vacuum retention policies\n8. Test MinIO integration for all three processes\n9. Verify cron-based scheduling for the compaction process",
+        "subtasks": [
+          {
+            "id": 4.1,
+            "title": "Implement Writer process for MinIO",
+            "description": "Create a writer process that continuously appends small files to a Delta table stored on MinIO",
+            "status": "pending"
+          },
+          {
+            "id": 4.2,
+            "title": "Implement Compaction process with cron scheduling",
+            "description": "Create a compaction process that can be scheduled via cron to merge small files into larger, optimized ones",
+            "status": "pending"
+          },
+          {
+            "id": 4.3,
+            "title": "Implement Vacuum process for MinIO",
+            "description": "Create a vacuum process that cleans up stale, unreferenced files older than a configured retention period",
+            "status": "pending"
+          },
+          {
+            "id": 4.4,
+            "title": "Implement MinIO client integration",
+            "description": "Create a MinIO client wrapper that can be used by all three processes to interact with the Delta table storage",
+            "status": "pending"
+          },
+          {
+            "id": 4.5,
+            "title": "Configure process coordination and monitoring",
+            "description": "Implement coordination between the three processes and monitoring to ensure they operate correctly together",
+            "status": "pending"
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "title": "Set Up Apache Kafka for Real-time Ingestion",
+        "description": "Configure Apache Kafka as the source for streaming data, including necessary infrastructure and client libraries.",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "medium",
+        "details": "1. Set up Kafka infrastructure using Docker with bitnami/kafka image (includes ZooKeeper)\n2. Configure Docker to expose port 9092 for client connections\n3. Configure topics, partitions, and retention policies\n4. Implement Kafka client in Rust using rdkafka or similar library\n5. Create configuration module for Kafka connection settings\n6. Implement serialization/deserialization for messages\n7. Add monitoring and health checks for Kafka connection\n\n```rust\npub struct KafkaConfig {\n    bootstrap_servers: String,\n    group_id: String,\n    topics: Vec<String>,\n    auto_offset_reset: String,\n    security_protocol: Option<String>,\n    sasl_mechanism: Option<String>,\n    sasl_username: Option<String>,\n    sasl_password: Option<String>,\n}\n\npub struct KafkaConsumer {\n    consumer: StreamConsumer,\n    config: KafkaConfig,\n}\n\nimpl KafkaConsumer {\n    pub fn new(config: KafkaConfig) -> Result<Self> { ... }\n    pub async fn subscribe(&self) -> Result<()> { ... }\n    pub async fn consume<F>(&self, handler: F) -> Result<()> \n    where F: Fn(KafkaMessage) -> Result<()> { ... }\n}\n```\n\n**Docker Configuration:**\n```yaml\nversion: '3'\nservices:\n  kafka:\n    image: bitnami/kafka\n    ports:\n      - \"9092:9092\"\n    environment:\n      - ALLOW_PLAINTEXT_LISTENER=yes\n      # Add other necessary environment variables\n```",
+        "testStrategy": "1. Unit tests for Kafka client with mocked Kafka\n2. Integration tests with actual Kafka instance running in Docker\n3. Test different message formats and sizes\n4. Test error handling and reconnection logic\n5. Performance tests measuring message throughput\n6. Test consumer group behavior with multiple instances\n7. Verify connectivity to Kafka on port 9092",
+        "subtasks": [
+          {
+            "id": "5.1",
+            "title": "Create Docker Compose file for bitnami/kafka",
+            "description": "Create a Docker Compose configuration that sets up Kafka using the bitnami/kafka image with ZooKeeper included and exposes port 9092.",
+            "status": "pending"
+          },
+          {
+            "id": "5.2",
+            "title": "Configure Kafka topics and settings",
+            "description": "Set up necessary topics, partitions, and retention policies for the streaming data requirements.",
+            "status": "pending"
+          },
+          {
+            "id": "5.3",
+            "title": "Implement Rust Kafka client",
+            "description": "Create the Rust client implementation using rdkafka that connects to the Dockerized Kafka instance on port 9092.",
+            "status": "pending"
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "title": "Develop Mock Data Producer for Kafka",
+        "description": "Create a configurable mock producer that generates realistic streaming data and publishes it to Kafka topics.",
+        "status": "pending",
+        "dependencies": [
+          5
+        ],
+        "priority": "medium",
+        "details": "Implement a mock data producer in Python or Rust that generates JSON events and publishes them to a Kafka topic on the local Kafka instance.\n\n1. Design a flexible configuration for data generation\n2. Implement various data patterns (steady, bursty, seasonal)\n3. Support JSON message format (primary focus)\n4. Add rate limiting and throttling capabilities\n5. Implement realistic data scenarios (e.g., e-commerce transactions, IoT sensors)\n6. Connect to the local Kafka instance set up in Task 5\n7. Allow configuration of target Kafka topic\n\n```rust\npub struct MockProducerConfig {\n    kafka_config: KafkaConfig,\n    message_rate: RateConfig,\n    schema: SchemaConfig,\n    error_rate: f64,  // Percentage of malformed messages\n    topic: String,    // Target Kafka topic\n}\n\npub enum RateConfig {\n    Steady { messages_per_second: u32 },\n    Bursty { base_rate: u32, burst_rate: u32, burst_interval: Duration },\n    Seasonal { base_rate: u32, peak_rate: u32, period: Duration },\n}\n\npub struct MockProducer {\n    config: MockProducerConfig,\n    producer: FutureProducer,\n    generator: DataGenerator,\n}\n\nimpl MockProducer {\n    pub fn new(config: MockProducerConfig) -> Result<Self> { ... }\n    pub async fn start(&self) -> Result<()> { ... }\n    pub async fn stop(&self) -> Result<()> { ... }\n}\n```\n\nAlternative Python implementation:\n\n```python\nclass MockProducerConfig:\n    def __init__(self, kafka_config, message_rate, schema, error_rate, topic):\n        self.kafka_config = kafka_config\n        self.message_rate = message_rate\n        self.schema = schema\n        self.error_rate = error_rate  # Percentage of malformed messages\n        self.topic = topic            # Target Kafka topic\n\nclass RateConfig:\n    @staticmethod\n    def steady(messages_per_second):\n        return {\"type\": \"steady\", \"messages_per_second\": messages_per_second}\n    \n    @staticmethod\n    def bursty(base_rate, burst_rate, burst_interval):\n        return {\"type\": \"bursty\", \"base_rate\": base_rate, \"burst_rate\": burst_rate, \"burst_interval\": burst_interval}\n    \n    @staticmethod\n    def seasonal(base_rate, peak_rate, period):\n        return {\"type\": \"seasonal\", \"base_rate\": base_rate, \"peak_rate\": peak_rate, \"period\": period}\n\nclass MockProducer:\n    def __init__(self, config):\n        self.config = config\n        self.producer = None\n        self.generator = None\n        \n    def connect(self):\n        # Connect to Kafka\n        pass\n        \n    def start(self):\n        # Start producing messages\n        pass\n        \n    def stop(self):\n        # Stop producing messages\n        pass\n```",
+        "testStrategy": "1. Unit tests for data generation patterns\n2. Integration tests with the local Kafka instance from Task 5\n3. Validation of generated JSON data against schemas\n4. Performance tests at different message rates\n5. Test error injection and handling\n6. Verify rate limiting accuracy\n7. Confirm messages are correctly published to the specified topic",
+        "subtasks": []
+      },
+      {
+        "id": 7,
+        "title": "Implement Real-time Ingestion Consumer Service",
+        "description": "Build a consumer service that ingests streaming data from Kafka into the 'Bronze' Delta table in MinIO in near real-time.",
+        "status": "pending",
+        "dependencies": [
+          3,
+          5
+        ],
+        "priority": "high",
+        "details": "1. Create a lightweight service using Rust with 'rdkafka' or Spark Structured Streaming that consumes from local Kafka topics\n2. Implement micro-batching logic for efficient writes to MinIO\n3. Add schema validation and error handling\n4. Implement exactly-once semantics using consumer offsets\n5. Add monitoring and metrics collection\n6. Implement backpressure handling\n7. Support graceful shutdown and recovery\n\n```rust\npub struct StreamingIngestService {\n    kafka_consumer: KafkaConsumer,\n    delta_table: DeltaTable,\n    batch_size: usize,\n    flush_interval: Duration,\n    buffer: Vec<Row>,\n    metrics: IngestMetrics,\n    minio_client: MinioClient,\n}\n\nimpl StreamingIngestService {\n    pub fn new(consumer: KafkaConsumer, table: DeltaTable, minio: MinioClient, config: IngestConfig) -> Self { ... }\n    pub async fn start(&mut self) -> Result<()> { ... }\n    pub async fn process_message(&mut self, msg: KafkaMessage) -> Result<()> { ... }\n    async fn flush_buffer(&mut self) -> Result<()> { ... }\n    pub async fn shutdown(&mut self) -> Result<()> { ... }\n}\n```\n\nAlternative Spark Structured Streaming implementation:\n```scala\nval spark = SparkSession.builder()\n  .appName(\"RealTimeIngestService\")\n  .config(\"spark.sql.extensions\", \"io.delta.sql.DeltaSparkSessionExtension\")\n  .config(\"spark.sql.catalog.spark_catalog\", \"org.apache.spark.sql.delta.catalog.DeltaCatalog\")\n  .getOrCreate()\n\nval kafkaStream = spark.readStream\n  .format(\"kafka\")\n  .option(\"kafka.bootstrap.servers\", \"localhost:9092\")\n  .option(\"subscribe\", \"input-topic\")\n  .load()\n\nval processedStream = kafkaStream.selectExpr(\"CAST(value AS STRING)\")\n  // Add transformation logic here\n\nval query = processedStream.writeStream\n  .format(\"delta\")\n  .option(\"checkpointLocation\", \"s3a://lakehouse/checkpoints/\")\n  .outputMode(\"append\")\n  .start(\"s3a://lakehouse/bronze/table\")\n```",
+        "testStrategy": "1. Unit tests for message processing logic\n2. Integration tests with local Kafka and MinIO-hosted Delta Lake\n3. Performance tests measuring end-to-end latency\n4. Fault tolerance tests with service restarts\n5. Test exactly-once semantics with duplicate messages\n6. Test backpressure handling under high load\n7. Test with various message formats and schemas\n8. Test micro-batch writing to MinIO with different batch sizes and intervals\n9. Test S3/MinIO connectivity and error handling",
+        "subtasks": []
+      },
+      {
+        "id": 8,
+        "title": "Create Performance Benchmarking Framework",
+        "description": "Develop a suite of benchmark tests to measure the performance of the Rust-based query engine against scaled datasets on S3/MinIO.",
+        "status": "pending",
+        "dependencies": [
+          1,
+          2,
+          3
+        ],
+        "priority": "medium",
+        "details": "1. Design a benchmarking framework with configurable test cases\n2. Define standard query patterns (scan, filter, join, aggregate) in a config file\n3. Implement a harness to execute these queries against MinIO using Polars/DataFusion\n4. Add metrics collection for latency and throughput\n5. Create visualization and reporting capabilities\n6. Optionally integrate Prometheus/Grafana for resource monitoring\n\n```rust\npub struct BenchmarkConfig {\n    query_type: QueryType,\n    iterations: usize,\n    concurrency: usize,\n    data_size: DataSize,\n    warm_up_iterations: usize,\n}\n\npub enum QueryType {\n    Scan { columns: Vec<String> },\n    Filter { predicate: String, selectivity: f64 },\n    Aggregate { group_by: Vec<String>, aggregations: Vec<Aggregation> },\n    Join { left_table: String, right_table: String, join_type: JoinType, conditions: Vec<JoinCondition> },\n}\n\npub struct BenchmarkResult {\n    config: BenchmarkConfig,\n    mean_latency: Duration,\n    p95_latency: Duration,\n    p99_latency: Duration,\n    throughput: f64,  // rows/second\n    // Resource metrics when Prometheus integration is enabled\n    cpu_usage: Option<f64>,   // percentage\n    memory_usage: Option<usize>,  // bytes\n    s3_requests: Option<usize>,\n    s3_data_transferred: Option<usize>,  // bytes\n}\n\npub struct BenchmarkRunner {\n    config: BenchmarkConfig,\n    engine: QueryEngine,\n    metrics_collector: Option<MetricsCollector>,\n}\n\nimpl BenchmarkRunner {\n    pub fn new(config: BenchmarkConfig, engine: QueryEngine) -> Self { ... }\n    pub async fn run(&self) -> Result<BenchmarkResult> { ... }\n    pub fn generate_report(&self, results: Vec<BenchmarkResult>) -> Result<Report> { ... }\n}\n```",
+        "testStrategy": "1. Validate benchmark framework with known datasets on MinIO\n2. Test reproducibility of results\n3. Verify latency and throughput metrics collection accuracy\n4. Test with various dataset sizes and query complexities\n5. Compare results between different query configurations\n6. If implemented, test Prometheus/Grafana integration for resource monitoring",
+        "subtasks": [
+          {
+            "id": 8.1,
+            "title": "Define standard query patterns in config file",
+            "status": "pending",
+            "description": "Create a YAML/JSON config file format that defines standard query patterns (scan, filter, join, aggregate) to be used in benchmarking."
+          },
+          {
+            "id": 8.2,
+            "title": "Build execution harness for MinIO datasets",
+            "status": "pending",
+            "description": "Implement a harness that can execute the configured queries against datasets stored in MinIO using Polars/DataFusion."
+          },
+          {
+            "id": 8.3,
+            "title": "Implement latency and throughput metrics collection",
+            "status": "pending",
+            "description": "Add functionality to measure and record query execution latency (mean, p95, p99) and throughput metrics."
+          },
+          {
+            "id": 8.4,
+            "title": "Create reporting and visualization module",
+            "status": "pending",
+            "description": "Develop a module to generate reports and visualizations from benchmark results."
+          },
+          {
+            "id": 8.5,
+            "title": "Add optional Prometheus/Grafana integration",
+            "status": "pending",
+            "description": "Implement optional integration with Prometheus/Grafana for resource monitoring during benchmark execution."
+          }
+        ]
+      },
+      {
+        "id": 9,
+        "title": "Set Up Containerized Apache Spark Environment",
+        "description": "Configure a containerized Apache Spark environment that can connect to the same Delta Lake on S3 compatible storage (MinIO).",
+        "status": "pending",
+        "dependencies": [
+          1,
+          3
+        ],
+        "priority": "medium",
+        "details": "1. Use community Spark Docker image with pre-installed Delta Lake and AWS connectors\n2. Configure Spark to use Delta Lake format\n3. Set up connection to local MinIO instance\n4. Configure resource allocation and tuning parameters\n5. Implement health checks and monitoring\n6. Create startup and shutdown scripts\n\n```dockerfile\nFROM apache/spark:3.3.0\n\n# The community image already includes necessary Hadoop AWS connector and Delta Lake JARs\n\n# Configure Spark defaults\nCOPY spark-defaults.conf $SPARK_HOME/conf/\n\n# Add entrypoint script\nCOPY entrypoint.sh /opt/\nRUN chmod +x /opt/entrypoint.sh\n\nENTRYPOINT [\"/opt/entrypoint.sh\"]\n```\n\n```\n# spark-defaults.conf\nspark.sql.extensions org.apache.spark.sql.delta.DeltaSparkSessionExtension\nspark.sql.catalog.spark_catalog org.apache.spark.sql.delta.catalog.DeltaCatalog\nspark.hadoop.fs.s3a.impl org.apache.hadoop.fs.s3a.S3AFileSystem\nspark.hadoop.fs.s3a.aws.credentials.provider com.amazonaws.auth.DefaultAWSCredentialsProviderChain\nspark.hadoop.fs.s3a.endpoint http://minio:9000\nspark.hadoop.fs.s3a.path.style.access true\n```",
+        "testStrategy": "1. Test container startup and configuration\n2. Verify Spark can read and write to local MinIO instance\n3. Test Delta Lake compatibility with MinIO storage\n4. Measure resource usage under different workloads\n5. Test container orchestration with Docker Compose\n6. Verify logging and monitoring setup\n7. Confirm proper connection to MinIO endpoint",
+        "subtasks": []
+      },
+      {
+        "id": 10,
+        "title": "Develop Sample Large-scale ELT Job in Spark",
+        "description": "Create a sample large-scale ELT (Extract, Load, Transform) job in Spark to showcase the 'workhorse' part of the dual-engine philosophy.",
+        "status": "pending",
+        "dependencies": [
+          9
+        ],
+        "priority": "medium",
+        "details": "1. Design a realistic ELT pipeline with multiple stages\n2. Implement data quality validation\n3. Add performance optimization techniques (partitioning, caching)\n4. Implement incremental processing pattern\n5. Add logging and monitoring\n6. Create parameterized job configuration\n\nThe job should read raw data from MinIO 'neuralake-bucket', perform transformations using Spark DataFrames, and write the curated results back to a different path in the same bucket as a Delta table.\n\n```python\nfrom pyspark.sql import SparkSession\nfrom pyspark.sql.functions import *\nfrom delta.tables import DeltaTable\n\n# Initialize Spark with Delta Lake support\nspark = SparkSession.builder \\\n    .appName(\"Large-Scale ELT Job\") \\\n    .config(\"spark.sql.extensions\", \"io.delta.sql.DeltaSparkSessionExtension\") \\\n    .config(\"spark.sql.catalog.spark_catalog\", \"org.apache.spark.sql.delta.catalog.DeltaCatalog\") \\\n    .getOrCreate()\n\n# Extract - Read from bronze layer in MinIO\nbronze_df = spark.read.format(\"delta\").load(\"s3a://neuralake-bucket/bronze/customer_transactions\")\n\n# Transform - Apply business logic\nsilver_df = bronze_df \\\n    .withColumn(\"transaction_date\", to_date(col(\"transaction_timestamp\"))) \\\n    .withColumn(\"transaction_amount_usd\", expr(\"amount * exchange_rate\")) \\\n    .withColumn(\"is_suspicious\", expr(\"amount > 10000 OR transaction_velocity > 5\"))\n\n# Data quality checks\nquality_metrics = {\n    \"null_customer_ids\": silver_df.filter(col(\"customer_id\").isNull()).count(),\n    \"negative_amounts\": silver_df.filter(col(\"transaction_amount_usd\") < 0).count(),\n    \"future_dates\": silver_df.filter(col(\"transaction_date\") > current_date()).count()\n}\n\n# Load - Write to silver layer with optimization\nsilver_df.write \\\n    .format(\"delta\") \\\n    .partitionBy(\"transaction_date\") \\\n    .mode(\"overwrite\") \\\n    .option(\"overwriteSchema\", \"true\") \\\n    .save(\"s3a://neuralake-bucket/silver/customer_transactions\")\n\n# Create aggregated gold layer\ngold_df = silver_df \\\n    .groupBy(\"transaction_date\", \"customer_segment\") \\\n    .agg(\n        count(\"*\").alias(\"transaction_count\"),\n        sum(\"transaction_amount_usd\").alias(\"total_amount\"),\n        avg(\"transaction_amount_usd\").alias(\"avg_amount\"),\n        countDistinct(\"customer_id\").alias(\"unique_customers\")\n    )\n\ngold_df.write \\\n    .format(\"delta\") \\\n    .mode(\"overwrite\") \\\n    .save(\"s3a://neuralake-bucket/gold/daily_segment_metrics\")\n```",
+        "testStrategy": "1. Test with sample datasets of varying sizes\n2. Validate data quality checks\n3. Measure performance with different configurations\n4. Test incremental processing logic\n5. Verify output data correctness\n6. Test error handling and recovery\n7. Benchmark against Rust engine for comparison\n8. Verify connectivity and access to MinIO 'neuralake-bucket'\n9. Confirm Delta tables are properly created and accessible in MinIO",
+        "subtasks": []
+      },
+      {
+        "id": 11,
+        "title": "Implement FastAPI Service for Data Querying",
+        "description": "Expose the neuralake catalog via a simple, fast API using FastAPI to allow other applications to run queries against the Delta tables stored in MinIO.",
+        "status": "pending",
+        "dependencies": [
+          3
+        ],
+        "priority": "medium",
+        "details": "1. Set up FastAPI application structure in a Docker container\n2. Implement endpoints for catalog browsing\n3. Create query execution endpoint that accepts SQL or Python expressions\n4. Add authentication and authorization\n5. Implement result pagination and streaming\n6. Add OpenAPI documentation\n7. Implement caching for frequent queries\n\n```python\nfrom fastapi import FastAPI, Depends, HTTPException, Query\nfrom fastapi.security import OAuth2PasswordBearer\nfrom pydantic import BaseModel\nimport asyncio\nfrom neuralake import Catalog, QueryEngine, DataFrame\n\napp = FastAPI(title=\"Neuralake API\", version=\"1.0.0\")\noauth2_scheme = OAuth2PasswordBearer(tokenUrl=\"token\")\n\nclass QueryRequest(BaseModel):\n    query: str  # Can be SQL or Python expression\n    query_type: str = \"sql\"  # \"sql\" or \"python\"\n    parameters: dict = {}\n    max_rows: int = 1000\n\nclass TableInfo(BaseModel):\n    name: str\n    schema: dict\n    location: str\n    format: str\n\n@app.get(\"/tables\", response_model=list[TableInfo])\nasync def list_tables(token: str = Depends(oauth2_scheme)):\n    catalog = Catalog.default()\n    tables = []\n    for table in catalog.list_tables():\n        tables.append(TableInfo(\n            name=table.name,\n            schema=table.schema.to_dict(),\n            location=table.location,\n            format=table.format\n        ))\n    return tables\n\n@app.post(\"/query\")\nasync def execute_query(request: QueryRequest, token: str = Depends(oauth2_scheme)):\n    engine = QueryEngine.default()\n    try:\n        if request.query_type == \"sql\":\n            result = await asyncio.to_thread(\n                engine.execute_sql,\n                request.query,\n                request.parameters\n            )\n        elif request.query_type == \"python\":\n            result = await asyncio.to_thread(\n                engine.execute_python,\n                request.query,\n                request.parameters\n            )\n        else:\n            raise HTTPException(status_code=400, detail=\"Invalid query_type. Must be 'sql' or 'python'\")\n            \n        return {\n            \"schema\": result.schema.to_dict(),\n            \"rows\": result.to_dicts(limit=request.max_rows),\n            \"total_rows\": result.row_count(),\n            \"execution_time_ms\": result.execution_time.total_milliseconds()\n        }\n    except Exception as e:\n        raise HTTPException(status_code=400, detail=str(e))\n```",
+        "testStrategy": "1. Unit tests for API endpoints\n2. Integration tests with the query engine (DataFusion/Polars)\n3. Performance tests for query execution against Delta tables\n4. Load testing with concurrent requests\n5. Security testing for authentication\n6. Test pagination and result streaming\n7. Verify OpenAPI documentation accuracy\n8. Test Docker container deployment\n9. Test both SQL and Python expression handling\n10. Verify proper connection to MinIO for accessing Delta tables",
+        "subtasks": [
+          {
+            "id": "11.1",
+            "title": "Create Docker container for FastAPI application",
+            "description": "Set up a Docker container that runs the FastAPI application with all necessary dependencies",
+            "status": "pending"
+          },
+          {
+            "id": "11.2",
+            "title": "Implement query endpoint for both SQL and Python expressions",
+            "description": "Create the /query endpoint that can handle both SQL queries and Python expressions against the neuralake query engine",
+            "status": "pending"
+          },
+          {
+            "id": "11.3",
+            "title": "Configure connection to MinIO for Delta table access",
+            "description": "Set up the connection between the FastAPI service and MinIO to access the Delta tables stored there",
+            "status": "pending"
+          },
+          {
+            "id": "11.4",
+            "title": "Implement JSON response formatting",
+            "description": "Ensure query results are properly formatted as JSON responses with appropriate metadata",
+            "status": "pending"
+          }
+        ]
+      },
+      {
+        "id": 12,
+        "title": "Enhance Code-as-Catalog with Complex Data Sources",
+        "description": "Extend the neuralake library to support more complex data sources in the code-as-catalog approach, focusing on local CSV files and Dockerized databases.",
+        "status": "pending",
+        "dependencies": [
+          3
+        ],
+        "priority": "medium",
+        "details": "1. Design an extensible interface for data sources\n2. Implement support for CSV files and JDBC connections to Dockerized databases (Postgres/MySQL)\n3. Add connection pooling and caching\n4. Implement credential management\n5. Add retry and circuit breaker patterns\n6. Support for schema inference\n\n```rust\npub trait DataSource: Send + Sync {\n    fn name(&self) -> &str;\n    fn schema(&self) -> Result<Schema>;\n    async fn read(&self, predicate: Option<Predicate>) -> Result<DataFrame>;\n    fn capabilities(&self) -> SourceCapabilities;\n}\n\npub struct CsvFileSource {\n    name: String,\n    file_path: PathBuf,\n    delimiter: char,\n    has_header: bool,\n    schema: Option<Schema>,\n}\n\npub struct JdbcSource {\n    name: String,\n    connection_string: String,\n    query: String,\n    credentials: Credentials,\n    pool: ConnectionPool,\n}\n\nimpl DataSource for CsvFileSource {\n    // Implementation for reading local CSV files\n}\n\nimpl DataSource for JdbcSource {\n    // Implementation for connecting to Dockerized databases\n}\n\n// Register in catalog\npub fn register_data_source(catalog: &mut Catalog, source: Box<dyn DataSource>) -> Result<()> {\n    catalog.register_source(source.name(), source)\n}\n```",
+        "testStrategy": "1. Unit tests for CSV file source and JDBC source\n2. Integration tests with local CSV files of varying sizes and formats\n3. Integration tests with Dockerized Postgres and MySQL databases\n4. Test connection pooling under load\n5. Test credential management security\n6. Test retry logic with simulated failures\n7. Verify schema inference accuracy for both CSV files and database tables\n8. Test query pushdown capabilities for JDBC sources\n9. Performance benchmarks for reading large CSV files",
+        "subtasks": []
+      },
+      {
+        "id": 13,
+        "title": "Implement Materialized Views",
+        "description": "Add support for materialized views in the neuralake library, allowing for pre-computed query results to be stored and maintained as Delta tables in MinIO.",
+        "status": "pending",
+        "dependencies": [
+          3,
+          12
+        ],
+        "priority": "medium",
+        "details": "1. Design materialized view definition format\n2. Implement logic to execute a query and save results as a Delta table in MinIO\n3. Add registration mechanism to catalog for materialized views\n4. Implement incremental refresh logic\n5. Add dependency tracking between views and sources\n6. Create scheduling mechanism for refreshes\n7. Implement query rewrite to use materialized views\n8. Add invalidation logic when source data changes\n\n```rust\npub struct MaterializedView {\n    name: String,\n    query: String,\n    refresh_mode: RefreshMode,\n    refresh_schedule: Option<Schedule>,\n    storage_format: StorageFormat,  // Will be Delta format\n    storage_location: String,       // MinIO path\n    dependencies: Vec<String>,      // Source tables/views\n    last_refresh: Option<DateTime<Utc>>,\n}\n\npub enum RefreshMode {\n    Complete,\n    Incremental { key_columns: Vec<String> },\n    OnDemand,\n}\n\npub enum Schedule {\n    Interval(Duration),\n    Cron(String),\n    AfterDependencyChanges,\n}\n\nimpl MaterializedView {\n    pub fn new(name: &str, query: &str, config: MaterializedViewConfig) -> Self { ... }\n    pub async fn refresh(&mut self, catalog: &Catalog) -> Result<()> { ... }\n    pub async fn is_fresh(&self, catalog: &Catalog) -> Result<bool> { ... }\n    pub fn last_refresh_time(&self) -> Option<DateTime<Utc>> { ... }\n}\n\n// Extension to Catalog\nimpl Catalog {\n    pub fn register_materialized_view(&mut self, view: MaterializedView) -> Result<()> { ... }\n    pub async fn refresh_materialized_view(&mut self, name: &str) -> Result<()> { ... }\n    pub async fn refresh_all_materialized_views(&mut self) -> Result<()> { ... }\n    \n    // Execute query and store results as Delta table in MinIO\n    pub async fn materialize_query(&mut self, name: &str, query: &str, config: MaterializedViewConfig) -> Result<MaterializedView> { ... }\n}\n```",
+        "testStrategy": "1. Unit tests for materialized view creation and refresh\n2. Test query execution and Delta table creation in MinIO\n3. Test catalog registration of materialized views\n4. Test incremental refresh logic with various data changes\n5. Test dependency tracking accuracy\n6. Performance tests comparing direct queries vs. materialized views\n7. Test scheduling and automatic refreshes\n8. Test query rewrite optimization\n9. Test concurrent refreshes and queries\n10. Integration tests with MinIO to verify Delta table storage and retrieval",
+        "subtasks": []
+      },
+      {
+        "id": 14,
+        "title": "Implement Data Quality Checks",
+        "description": "Add support for defining and executing data quality checks directly in the code, integrated with the catalog and executable within data pipelines.",
+        "status": "pending",
+        "dependencies": [
+          3,
+          12
+        ],
+        "priority": "medium",
+        "details": "1. Design a flexible data quality check definition format that can be included in table definitions\n2. Implement common check types (null, uniqueness, range, regex, etc.)\n3. Add support for custom check logic\n4. Create reporting and alerting mechanism\n5. Implement check scheduling and execution as part of data pipelines (after generation or before compaction)\n6. Add historical quality metrics tracking\n\n```rust\npub enum CheckSeverity {\n    Info,\n    Warning,\n    Error,\n    Critical,\n}\n\npub struct DataQualityCheck {\n    name: String,\n    table_name: String,\n    check_type: CheckType,\n    severity: CheckSeverity,\n    schedule: Option<Schedule>,\n    last_run: Option<DateTime<Utc>>,\n    last_result: Option<CheckResult>,\n}\n\npub enum CheckType {\n    NotNull { column: String },\n    Unique { columns: Vec<String> },\n    Range { column: String, min: Option<Value>, max: Option<Value> },\n    Regex { column: String, pattern: String },\n    Custom { sql: String, threshold: f64 },\n    RowCount { min: Option<i64>, max: Option<i64> },\n    Freshness { timestamp_column: String, max_delay: Duration },\n}\n\npub struct CheckResult {\n    check_name: String,\n    passed: bool,\n    execution_time: DateTime<Utc>,\n    value: Option<f64>,\n    threshold: Option<f64>,\n    failed_rows: Option<Vec<Row>>,\n    message: String,\n}\n\nimpl DataQualityCheck {\n    pub fn new(name: &str, table: &str, check_type: CheckType, config: CheckConfig) -> Self { ... }\n    pub async fn execute(&self, catalog: &Catalog) -> Result<CheckResult> { ... }\n}\n\n// Extension to Catalog and Table definitions\nimpl Catalog {\n    pub fn register_quality_check(&mut self, check: DataQualityCheck) -> Result<()> { ... }\n    pub async fn run_quality_check(&self, name: &str) -> Result<CheckResult> { ... }\n    pub async fn run_all_quality_checks(&self) -> Result<Vec<CheckResult>> { ... }\n}\n\n// Extension to Table definition to include quality checks\nimpl TableBuilder {\n    pub fn with_quality_check(&mut self, check: DataQualityCheck) -> &mut Self { ... }\n}\n\n// Pipeline integration\nimpl Pipeline {\n    pub fn run_quality_checks_after_generation(&mut self) -> &mut Self { ... }\n    pub fn run_quality_checks_before_compaction(&mut self) -> &mut Self { ... }\n}\n```",
+        "testStrategy": "1. Unit tests for each check type\n2. Integration tests with sample data\n3. Test reporting and alerting\n4. Test scheduling and execution within pipelines\n5. Performance impact assessment\n6. Test custom check logic\n7. Test historical metrics tracking\n8. Test integration with table definitions\n9. Test execution at different pipeline stages (post-generation, pre-compaction)",
+        "subtasks": []
+      },
+      {
+        "id": 15,
+        "title": "End-to-End Integration and Documentation",
+        "description": "Integrate all components into a cohesive system and create comprehensive documentation for the platform.",
+        "details": "1. Create a unified deployment configuration\n2. Implement system-wide monitoring and logging\n3. Develop end-to-end examples showcasing the complete data flow\n4. Write comprehensive API documentation\n5. Create architecture diagrams and flow charts\n6. Develop user guides and tutorials\n7. Implement CI/CD pipeline for the project\n\nDocumentation structure:\n1. Getting Started\n   - Installation\n   - Configuration\n   - Quick Examples\n2. Architecture\n   - Component Overview\n   - Data Flow\n   - Scaling Considerations\n3. API Reference\n   - Rust Library API\n   - REST API\n4. User Guides\n   - Data Modeling\n   - Query Optimization\n   - Streaming Patterns\n   - Dual-Engine Usage\n5. Operations\n   - Monitoring\n   - Troubleshooting\n   - Performance Tuning\n6. Examples\n   - Basic Usage\n   - Advanced Patterns\n   - Integration Examples",
+        "testStrategy": "1. End-to-end system tests\n2. Documentation accuracy verification\n3. Example code validation\n4. CI/CD pipeline testing\n5. User acceptance testing with sample workflows\n6. Cross-component integration testing\n7. System monitoring validation",
+        "priority": "high",
+        "dependencies": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14
+        ],
+        "status": "pending",
+        "subtasks": []
+      }
+    ],
+    "metadata": {
+      "created": "2025-06-19T13:06:06.120Z",
+      "updated": "2025-06-19T13:06:06.120Z",
+      "description": "Tasks for master context"
+    }
+  }
+}

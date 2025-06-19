@@ -1,0 +1,21 @@
+**PRD: Neuralake Blueprint Expansion and Scaling (Local-First Development)**
+
+**Objective:** Evolve the current `neuralake` proof-of-concept into a robust, scalable data platform that fully implements the architectural vision outlined in `ONBOARDING.md`. This project will enable at-scale testing, performance benchmarking, and provide a rich learning environment for modern data engineering practices, **all while using a local-first, zero-cost development strategy.**
+
+**Key Initiatives:**
+
+1.  **Cloud Integration:** Transition the platform's storage backend from the local filesystem to a cloud-native object store. **Strategy:** For initial development and cost-effective testing, we will use a local, S3-compatible alternative like **MinIO (run via Docker)**. This allows for full-featured testing of Delta Lake capabilities without incurring cloud costs. The final transition to a managed AWS S3 bucket will be a subsequent step after local validation.
+
+2.  **Scalable Data Generation:** Develop a powerful data generation utility capable of creating large, multi-gigabyte or terabyte-scale datasets. **Strategy:** A **Python utility (using Faker and NumPy)** will generate configurable datasets and write them directly to the local MinIO instance, simulating high-throughput writes by creating many small files that can be compacted later.
+
+3.  **Implement Full Delta Lake Capabilities:** Replace the simple `ParquetTable` with a full-featured `DeltaTable` implementation. **Strategy:** We will use the **`delta-rs` (Rust) library against MinIO** to implement ACID transactions, schema evolution, and time travel. The "Low-Latency Writer" pattern will be implemented with distinct, concurrent processes for writing, compaction, and vacuuming to handle the "small file problem" locally.
+
+4.  **Real-time Ingestion Pipeline:** Build a streaming data pipeline using Apache Kafka as the source. **Strategy:** A complete, local streaming pipeline will be built using a **Dockerized Apache Kafka instance**, a mock data producer, and a lightweight consumer service (Rust or Spark Streaming) that writes data in micro-batches to a "Bronze" Delta table on MinIO.
+
+5.  **Performance Benchmarking Framework:** Create a suite of benchmark tests to measure the performance of the Rust-based query engine. **Strategy:** A benchmark harness will execute a predefined suite of queries (using **Polars/DataFusion**) against the large datasets generated and stored in the local MinIO instance, measuring latency and throughput.
+
+6.  **Dual-Engine Demonstration (Spark Integration):** Set up a containerized Apache Spark environment. **Strategy:** A community **Docker image for Apache Spark** will be configured to connect to the local MinIO instance. This will be used to run a large-scale ELT job, demonstrating the "workhorse" engine's ability to operate on the same data as the "surgical strike" Rust stack.
+
+7.  **API for Querying:** Expose the `neuralake` catalog via a simple, fast API. **Strategy:** A **Dockerized FastAPI service** will provide a query endpoint. This service will invoke the local query engine (Polars/DataFusion) to run queries against the Delta tables in MinIO and return results as JSON.
+
+8.  **Advanced 'Code-as-Catalog' Features:** Enhance the `neuralake` library to support more complex data sources, materialized views, and data quality checks. **Strategy:** These features will be built on the local infrastructure, including connecting to **Dockerized databases (e.g., Postgres)**, storing materialized views as Delta tables in MinIO, and running data quality checks within the local data pipelines. 
