@@ -1,0 +1,106 @@
+# 06-19-25 - Initial Project Setup & Debugging (`neuralake` Demo)
+
+### Files Updated:
+- `neuralake/neuralake_demo/create_sample_data.py`: Created script to generate sample Parquet data.
+- `neuralake/neuralake_demo/my_tables.py`: Defined `neuralake` tables from Parquet and a Python function.
+- `neuralake/neuralake_demo/my_catalog.py`: Established the `neuralake` data catalog.
+- `neuralake/neuralake_demo/query_data.py`: Implemented the main query and join logic.
+- `neuralake/neuralake_demo/ONBOARDING.md`: Created educational documentation.
+- `neuralake/neuralake_demo/README.md`: Created the project README.
+- `.gitignore`: Added a standard Python gitignore file.
+- `coding_updates/coding_updates_1.md`: Initial documentation of the setup process.
+
+### Description:
+This initial update sets up a demonstration project for the `neuralake` library. It includes creating sample data, defining a data catalog in code, and executing a query that joins data from two different sources. This serves as a foundational example of a modern ELT pipeline using `neuralake`.
+
+### Reasoning:
+The goal was to provide a hands-on, working example to accompany the educational documentation. The process involved several debugging steps, which are documented here to provide a realistic view of the development process.
+
+### Trade-offs:
+- **Initial Complexity**: The debugging process revealed that the `neuralake` library has some undocumented or unexpected API requirements (e.g., the `partitioning` argument). This added some initial friction to the setup.
+- **Simplified Data**: The sample data is very small and simple. A real-world example would involve more complex data and schemas.
+
+### Considerations:
+The debugging process highlighted the importance of reading the source code when documentation is sparse. The errors encountered were primarily `TypeError` exceptions due to incorrect arguments passed to the `ParquetTable` constructor. The final file path issue was a simple oversight in the initial script.
+
+### Future Work:
+- Explore more advanced features of `neuralake`, such as `DeltalakeTable`.
+- Expand the demo to include a more complex, multi-stage data pipeline.
+- Add automated tests to verify the pipeline's correctness.
+
+---
+# 06-19-25 - Migrated to Poetry for Dependency Management
+
+### Files Updated:
+- `pyproject.toml`: Created to manage project dependencies with Poetry.
+- `poetry.lock`: Generated to ensure reproducible builds.
+- `README.md`: Updated installation and execution instructions to use Poetry commands.
+- `requirements.txt`: Deleted as it is now obsolete.
+- `.gitignore`: Updated to include `.DS_Store` and other common Python artifacts.
+
+### Description:
+This update transitions the project from a `pip` and `requirements.txt` based setup to a more modern and robust dependency management system using **Poetry**. This improves the reliability and reproducibility of the development environment.
+
+### Reasoning:
+Using `pip` with a `requirements.txt` file is functional but has drawbacks. It doesn't inherently handle dependency conflicts well, and it doesn't provide a true lockfile mechanism to guarantee that the exact same versions of all dependencies (including sub-dependencies) are used across different environments. **Poetry** solves these problems by:
+1.  Providing a `pyproject.toml` for clear dependency declaration.
+2.  Generating a `poetry.lock` file for deterministic, reproducible builds.
+3.  Offering a much better developer experience for managing dependencies and virtual environments.
+
+We also explored using **`uv`**, a high-speed installer, as a backend for Poetry. However, this feature appears to require a newer version of Poetry than is currently installed, so we have deferred this optimization to keep the setup instructions simple and reliable. The core benefits of Poetry's dependency management are fully realized.
+
+### Trade-offs:
+- **Learning Curve**: For developers unfamiliar with Poetry, there is a small learning curve compared to `pip`. However, the benefits in project stability and maintainability far outweigh this.
+- **Tooling Overhead**: Poetry introduces a new tool into the workflow, but it replaces the need to manage `virtualenv` and `pip` separately.
+
+### Considerations:
+The migration involved resolving dependency conflicts, as `neuralake` has strict version requirements for its own dependencies (`polars` and `pyarrow`). Poetry's dependency resolver helped identify and fix these issues explicitly in the `pyproject.toml` file.
+
+### Future Work:
+- Re-evaluate using `uv` as an installer for Poetry in the future, as newer versions of Poetry are released.
+- Add linters and formatters (like `ruff`) to the `dev` dependencies in `pyproject.toml` to enforce code quality.
+
+### Issues Encountered & Resolutions:
+
+1.  **NumPy Version Conflict**:
+    -   **Issue**: The initial execution failed with an error indicating that a module compiled with NumPy 1.x could not run with the installed NumPy 2.x. This is a common issue when new major versions of core libraries are released.
+    -   **Resolution**: I downgraded the `numpy` package to a version less than 2.0 (`pip install "numpy<2.0"`) to ensure compatibility with the `neuralake` dependency tree.
+
+2.  **`ParquetTable` `TypeError`s**:
+    -   **Issue**: The script failed with a series of `TypeError` exceptions because invalid arguments (`schema`, `unique_columns`) were passed to the `ParquetTable` constructor. The documentation provided in the PyPI description was slightly out of sync with the actual class implementation.
+    -   **Resolution**: I inspected the library's source code to find the correct constructor signature. This revealed the `partitioning` argument was required. I updated the code to provide the correct arguments (`name`, `uri`, `partitioning`).
+
+3.  **`PartitioningScheme` `ValueError`**:
+    -   **Issue**: I initially tried to pass an empty list to `PartitioningScheme`, which caused a `ValueError` because it's an `Enum`, not a class that can be instantiated with a list.
+    -   **Resolution**: By reading the source code in `neuralake/core/tables/util.py`, I identified that `PartitioningScheme` was an `Enum` and that the `ParquetTable`'s `partitioning` argument expected a list of `Partition` objects. For our unpartitioned data, passing an empty list (`[]`) to `partitioning` was the correct approach.
+
+4.  **`FileNotFoundError`**:
+    -   **Issue**: The query script failed because it couldn't find the `parts.parquet` file. The `create_sample_data.py` script was run from the project root, creating the `data` directory there, but the query script expected it inside the `neuralake/neuralake_demo` directory.
+    -   **Resolution**: I moved the `data` directory into the `neuralake/neuralake_demo` directory (`mv data neuralake/neuralake_demo/`), which aligned the actual file path with the path expected by the script.
+
+---
+# 06-19-25 - Refactored to a Multi-Project Monorepo Structure
+
+### Files Updated:
+- `neuralake/`: The entire directory was restructured to be a self-contained project.
+- `pyproject.toml`: Moved into `neuralake/`.
+- `poetry.lock`: Moved into `neuralake/`.
+- `README.md`: A new root-level README was created to act as a table of contents.
+- `neuralake/README.md`: The previous root README was moved here and updated with project-specific instructions.
+- `neuralake/*.py`: All python scripts were updated to remove unnecessary path manipulation.
+
+### Description:
+This update refactors the repository from a single-project setup to a multi-project "monorepo" structure. The `neuralake` demo is now a fully self-contained project within the larger `Data-Engineering` repository.
+
+### Reasoning:
+The original structure, with a single `pyproject.toml` at the root, was not scalable. It would have led to dependency conflicts as soon as a second project was added. The new structure isolates each project's dependencies, making the repository much more robust and easier to manage long-term. This aligns with the user's goal of having a collection of separate mini-projects.
+
+### Trade-offs:
+- **Slightly More Complex Navigation**: Developers now need to `cd` into the specific project directory (`neuralake/`) before running commands. This is a very minor trade-off for the significant benefit of dependency isolation.
+
+### Considerations:
+This refactoring is a critical step in establishing a clean, scalable foundation for a data engineering portfolio. Each new project can now be added in its own directory with its own `poetry` environment, without interfering with any existing projects.
+
+### Future Work:
+- Add a new data engineering project to the repository to validate the multi-project structure.
+- Create a template or cookiecutter for bootstrapping new projects within this monorepo. 

@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "data-engineering-playground"
+version = "0.1.0"
+description = "A playground for modern data engineering concepts."
+authors = ["OCWC22 <willschenwu@gmail.com>"]
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.11"
+neuralake = "0.0.5"
+polars = "1.9.0"
+pyarrow = "17.0.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
