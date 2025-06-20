@@ -1,0 +1,131 @@
+[
+  {
+    "name": "users",
+    "description": "Enterprise user data with comprehensive user profiles",
+    "table_type": "function",
+    "tags": [
+      "users",
+      "core",
+      "analytics"
+    ],
+    "schema": {
+      "user_id": "Int64",
+      "username": "Utf8",
+      "email": "Utf8",
+      "created_at": "Datetime",
+      "last_login": "Datetime",
+      "is_active": "Boolean",
+      "user_type": "Utf8"
+    },
+    "owner": "data-engineering",
+    "url": "./tables/users.html"
+  },
+  {
+    "name": "user_events",
+    "description": "Real-time event stream data with user interactions",
+    "table_type": "function",
+    "tags": [
+      "events",
+      "streaming",
+      "analytics",
+      "real-time"
+    ],
+    "schema": {
+      "event_id": "Utf8",
+      "user_id": "Int64",
+      "event_type": "Utf8",
+      "event_data": "Utf8",
+      "timestamp": "Datetime",
+      "event_date": "Date",
+      "session_id": "Utf8"
+    },
+    "owner": "data-engineering",
+    "url": "./tables/user_events.html"
+  },
+  {
+    "name": "neural_signals",
+    "description": "Neural signal data from research experiments",
+    "table_type": "function",
+    "tags": [
+      "neuroscience",
+      "signals",
+      "research",
+      "time-series"
+    ],
+    "schema": {
+      "signal_id": "Utf8",
+      "neuron_id": "Int64",
+      "cortical_region": "Utf8",
+      "signal_strength": "Float64",
+      "frequency_hz": "Float64",
+      "timestamp": "Datetime",
+      "experiment_id": "Utf8",
+      "spike_detected": "Boolean"
+    },
+    "owner": "research-team",
+    "url": "./tables/neural_signals.html"
+  },
+  {
+    "name": "data_quality_metrics",
+    "description": "Data quality metrics and validation results",
+    "table_type": "function",
+    "tags": [
+      "quality",
+      "monitoring",
+      "validation",
+      "metadata"
+    ],
+    "schema": {
+      "table_name": "Utf8",
+      "check_timestamp": "Datetime",
+      "completeness_score": "Float64",
+      "accuracy_score": "Float64",
+      "consistency_score": "Float64",
+      "timeliness_score": "Float64",
+      "overall_score": "Float64",
+      "issues_found": "Int64",
+      "last_updated": "Datetime"
+    },
+    "owner": "data-engineering",
+    "url": "./tables/data_quality_metrics.html"
+  },
+  {
+    "name": "transactions",
+    "description": "Financial transaction records with ACID guarantees",
+    "table_type": "parquet",
+    "tags": [
+      "finance",
+      "transactions",
+      "delta",
+      "acid"
+    ],
+    "schema": {
+      "transaction_id": "Utf8",
+      "user_id": "Int64",
+      "amount": "Float64",
+      "transaction_type": "Utf8",
+      "timestamp": "Datetime"
+    },
+    "owner": "finance-team",
+    "url": "./tables/transactions.html"
+  },
+  {
+    "name": "inventory",
+    "description": "Real-time inventory tracking with warehouse locations",
+    "table_type": "parquet",
+    "tags": [
+      "inventory",
+      "warehouse",
+      "real-time",
+      "delta"
+    ],
+    "schema": {
+      "item_id": "Utf8",
+      "quantity": "Int64",
+      "location": "Utf8",
+      "last_updated": "Datetime"
+    },
+    "owner": "operations-team",
+    "url": "./tables/inventory.html"
+  }
+]

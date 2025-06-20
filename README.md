@@ -222,22 +222,30 @@ poetry run python scripts/production_verification.py
 If everything is working, `poetry run python src/query_data.py` will show:
 
 ```
---- Querying 'part' table from S3 (Local Environment) ---
---- S3 Endpoint: http://localhost:9000 ---
+🌐 Neuralake Demo Catalog Query (Local Environment)
+📊 S3 Endpoint: http://localhost:9000
+============================================================
 
-Query successful! Fetched data from S3:
-shape: (5, 4)
-┌───────────┬──────────┬─────────┬───────────────┐
-│ p_partkey ┆ p_name   ┆ p_brand ┆ p_retailprice │
-│ ---       ┆ ---      ┆ ---     ┆ ---           │
-│ i64       ┆ str      ┆ str     ┆ f64           │
-╞═══════════╪══════════╪═════════╪═══════════════╡
-│ 1         ┆ Part#1   ┆ Brand#1 ┆ 10.0          │
-│ 2         ┆ Part#2   ┆ Brand#2 ┆ 20.0          │
-│ 3         ┆ Part#3   ┆ Brand#3 ┆ 30.0          │
-│ 4         ┆ Part#4   ┆ Brand#1 ┆ 40.0          │
-│ 5         ┆ Part#5   ┆ Brand#2 ┆ 50.0          │
-└───────────┴──────────┴─────────┴───────────────┘
+📚 Available Tables in Catalog (6 total):
+  • users               (function) - Enterprise user data with comprehensive user...
+  • user_events         (function) - Real-time event stream data with user inter...
+  • neural_signals      (function) - Neural signal data from research experiments...
+  • data_quality_metrics(function) - Data quality metrics and validation results...
+  • transactions       (delta   ) - Financial transaction records with ACID guar...
+  • inventory           (delta   ) - Real-time inventory tracking with warehouse ...
+
+============================================================
+🔍 Running Demo Queries...
+
+1️⃣  Querying 'users' table (Function Table):
+✅ Successfully fetched user data: (5, 7)
+┌─────────┬─────────────┬──────────────────────┬─────────────────────┬─────────────────────┬───────────┬───────────┐
+│ user_id ┆ username    ┆ email                ┆ created_at          ┆ last_login          ┆ is_active ┆ user_type │
+...
+🎉 Demo catalog queries completed!
+💡 To generate a browsable catalog site, run:
+   python -c "from src.my_catalog import generate_catalog_site; generate_catalog_site()"
+   Then open the generated HTML file in your browser
 ```
 
 ### Troubleshooting
@@ -255,6 +263,85 @@ bash setup_minio.sh
 ```
 
 **"Cannot connect to Docker daemon"**: Start Docker Desktop application first.
+
+## Browsable Catalog Site (SSG - Static Site Generator)
+
+One of the key features of this project is the **"Code as a Catalog"** system with auto-generated documentation. The Static Site Generator (SSG) creates a beautiful, browsable HTML catalog from your table definitions.
+
+### Generate the Catalog Site
+
+There are multiple ways to generate the browsable catalog site:
+
+**Option 1: Using the dedicated script (Recommended)**
+```bash
+# Generate demo catalog site with all tables
+cd neuralake
+poetry run python scripts/generate_demo_catalog_site.py
+
+# The site will be generated in 'demo-catalog-site/' directory
+# Open demo-catalog-site/index.html in your browser
+```
+
+**Option 2: Using Python directly**
+```bash
+cd neuralake
+poetry run python -c "from src.my_catalog import generate_catalog_site; generate_catalog_site()"
+
+# The site will be generated in 'catalog-site/' directory  
+# Open catalog-site/index.html in your browser
+```
+
+**Option 3: Using the demo_catalog module**
+```bash
+cd neuralake
+poetry run python -c "from src.demo_catalog import generate_demo_catalog_site; generate_demo_catalog_site()"
+```
+
+### What's in the Catalog Site
+
+The generated site includes:
+
+- **📊 Table Listing**: All tables with descriptions, types, and metadata
+- **🔍 Search & Filtering**: Search tables by name, description, or tags
+- **📋 Table Details**: Individual pages for each table with:
+  - Complete schema information
+  - Sample queries and code snippets
+  - Metadata (owner, creation date, tags)
+  - Copy-paste Python code examples
+- **🛠️ API Reference**: Complete Python API documentation
+- **📈 Analytics**: Table counts, schema summaries
+
+### Demo Tables Available
+
+The demo catalog includes several example tables showcasing different patterns:
+
+**Function Tables** (Generated from Python functions):
+- `users` - Enterprise user data with profiles
+- `user_events` - Real-time event stream data  
+- `neural_signals` - Neural signal recordings from experiments
+- `data_quality_metrics` - Data quality monitoring results
+
+**Static Tables** (Delta Lake / Parquet):
+- `transactions` - Financial transaction records
+- `inventory` - Real-time inventory tracking
+
+### Extending the Catalog
+
+Add your own tables by:
+
+1. **Function Tables**: Use the `@table` decorator in `src/demo_catalog.py`
+2. **Static Tables**: Use `register_static_table()` for existing data sources
+3. **Generate Site**: Run the SSG script to update the documentation
+
+Example:
+```python
+from src.catalog_core import table
+import polars as pl
+
+@table(description="My custom data", tags=["custom", "demo"])
+def my_table():
+    return pl.LazyFrame({"id": [1, 2], "value": ["a", "b"]})
+```
 
 ## Code Quality
 
@@ -336,12 +423,30 @@ poetry run ruff check .
 
 **Quick Tests to Verify Setup:**
 ```bash
-# Basic functionality test
+# Basic functionality test - Demo catalog queries
 cd neuralake && poetry run python src/query_data.py
+
+# Generate browsable catalog site
+poetry run python scripts/generate_demo_catalog_site.py
 
 # Full verification suite  
 poetry run python scripts/production_verification.py
 
 # Check Rust writer compilation
 cd rust-writer && cargo check
+```
+
+**Browse the Catalog:**
+After running the demo catalog site generator, open `neuralake/demo-catalog-site/index.html` in your browser to explore the interactive catalog with all table definitions, schemas, and sample queries.
+
+**Complete Demo Workflow:**
+```bash
+# Run the comprehensive demo that shows everything
+cd neuralake && poetry run python scripts/demo_complete_workflow.py
+
+# This will:
+# 1. Query all demo tables with analytics
+# 2. Generate the browsable catalog site  
+# 3. Show you exactly how to explore the results
+# 4. Provide copy-paste code examples
 ```

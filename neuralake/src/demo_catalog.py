@@ -14,11 +14,11 @@ from typing import Dict, Any
 
 # Import our catalog system
 try:
-    from .catalog_core import table, register_static_table, TableType
+    from .catalog_core import table, register_static_table, TableType, default_catalog
     from .delta_tables import NeuralakeDeltaTable
 except ImportError:
     # Fallback for direct script execution
-    from catalog_core import table, register_static_table, TableType
+    from catalog_core import table, register_static_table, TableType, default_catalog
     from delta_tables import NeuralakeDeltaTable
 
 logger = logging.getLogger(__name__)
@@ -167,7 +167,18 @@ def neural_signals():
 @table(
     description="Data quality metrics and validation results",
     tags=["quality", "monitoring", "validation", "metadata"],
-    owner="data-engineering"
+    owner="data-engineering",
+    schema={
+        "table_name": "Utf8",
+        "check_timestamp": "Datetime",
+        "completeness_score": "Float64",
+        "accuracy_score": "Float64",
+        "consistency_score": "Float64",
+        "timeliness_score": "Float64",
+        "overall_score": "Float64",
+        "issues_found": "Int64",
+        "last_updated": "Datetime"
+    }
 )
 def data_quality_metrics():
     """
@@ -195,7 +206,7 @@ def register_delta_tables():
         # Example Delta table registration
         # In practice, this would point to existing Delta tables
         
-                # Mock registration since we may not have actual Delta tables
+        # Mock registration since we may not have actual Delta tables
         class MockDeltaTable:
             def __init__(self, name):
                 self.name = name
@@ -261,6 +272,43 @@ def register_delta_tables():
 # Auto-register Delta tables when module is imported
 register_delta_tables()
 
+# Create a convenience function to get the demo catalog
+def get_demo_catalog():
+    """Get the default catalog with all demo tables registered."""
+    return default_catalog
+
+# Function to list all demo tables
+def list_demo_tables():
+    """List all tables registered in the demo catalog."""
+    return default_catalog.list_tables()
+
+# Function to generate catalog site
+def generate_demo_catalog_site(output_dir: str = "demo-catalog-site"):
+    """
+    Generate static site for the demo catalog.
+    
+    Args:
+        output_dir: Directory to output the static site
+    """
+    try:
+        from .ssg import CatalogSiteGenerator
+    except ImportError:
+        from ssg import CatalogSiteGenerator
+    
+    # Export catalog metadata
+    catalog_metadata = default_catalog.export_catalog_metadata()
+    
+    # Generate site
+    from pathlib import Path
+    generator = CatalogSiteGenerator(Path(output_dir))
+    generator.generate_site(catalog_metadata, "Neuralake Demo Data Catalog")
+    
+    logger.info(f"📚 Demo catalog site generated at: {Path(output_dir).absolute()}")
+    logger.info(f"   Open: file://{Path(output_dir).absolute()}/index.html")
+    
+    return Path(output_dir).absolute()
+
 logger.info("📚 Demo catalog tables registered successfully")
 logger.info("   Function tables: users, user_events, neural_signals, data_quality_metrics")
-logger.info("   Static tables: transactions, inventory") 
+logger.info("   Static tables: transactions, inventory")
+logger.info("   Use demo_catalog.generate_demo_catalog_site() to create static site") 

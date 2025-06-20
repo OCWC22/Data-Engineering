@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neuralake Demo Data Catalog</title>
+    <link rel="stylesheet" href="./static/styles.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div>
+                    <h1>Neuralake Demo Data Catalog</h1>
+                    <div class="subtitle">Code as a Catalog • Automatically Generated Documentation</div>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <!-- Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-number">6</span>
+                <div class="stat-label">Total Tables</div>
+            </div>
+            <div class="stat-card neural">
+                <span class="stat-number">1</span>
+                <div class="stat-label">Neural Data Tables</div>
+            </div>
+            <div class="stat-card realtime">
+                <span class="stat-number">2</span>
+                <div class="stat-label">Real-time Tables</div>
+            </div>
+            <div class="stat-card clinical">
+                <span class="stat-number">0</span>
+                <div class="stat-label">Clinical Tables</div>
+            </div>
+        </div>
+        
+        <!-- Search and Filters -->
+        <div class="search-container">
+            <input type="text" id="searchBox" class="search-box" 
+                   placeholder="Search tables by name, description, or tags...">
+        </div>
+        
+        <div class="filters">
+            <div class="filter-tag active" data-filter="all">All Tables</div>
+            
+            <div class="filter-tag" data-filter="parquet">Parquet Tables</div>
+            
+            <div class="filter-tag" data-filter="function">Function Tables</div>
+            
+        </div>
+        
+        <!-- Table Grid -->
+        <div id="tableGrid" class="table-grid">
+            <!-- Tables will be populated by JavaScript -->
+        </div>
+        
+        <!-- Quick Start -->
+        <section style="margin-top: 3rem;">
+            <h2>Quick Start - Neural Data Access</h2>
+            <div class="code-snippet">
+                <button class="copy-button">Copy</button>
+                <pre><code># Neuralake: Simple Systems for Complex Neural Data
+from neuralake.src.catalog_core import default_catalog
+
+# List all neural data tables
+tables = default_catalog.list_tables()
+print(f"Neural tables: {[t for t in tables if 'neural' in t]}")
+
+# Access real-time neural signals
+signals = default_catalog.table("neural_signals")
+recent_signals = signals.filter(
+    pl.col("timestamp_ns") > (pl.datetime.now().timestamp() * 1e9 - 1000000000)
+).collect()
+
+# Access motor predictions for closed-loop control
+predictions = default_catalog.table("motor_predictions") 
+latest_intent = predictions.sort("timestamp_ns", descending=True).limit(1).collect()</code></pre>
+            </div>
+            
+            <h3 style="margin-top: 2rem;">Architecture Highlights</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; margin: 1rem 0;">
+                <div style="background: var(--code-bg); padding: 1rem; border-radius: 8px;">
+                    <strong>🎯 Surgical Strike Writer</strong><br>
+                    Sub-100ms latency for real-time control
+                </div>
+                <div style="background: var(--code-bg); padding: 1rem; border-radius: 8px;">
+                    <strong>⚡ Workhorse Processing</strong><br>
+                    High-throughput batch analytics
+                </div>
+                <div style="background: var(--code-bg); padding: 1rem; border-radius: 8px;">
+                    <strong>🧠 Neural-First Design</strong><br>
+                    Optimized for 30kHz+ signal processing
+                </div>
+            </div>
+        </section>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <p>Generated on 2025-06-20T12:24:38.430451 • 
+               <a href="./api-reference.html">API Reference</a> • 
+               Powered by Neuralake</p>
+        </div>
+    </footer>
+    
+    <!-- Embed table data directly -->
+    <script>
+        window.CATALOG_DATA = [
+            {
+                "name": "users",
+                "description": "Enterprise user data with comprehensive user profiles",
+                "table_type": "function",
+                "tags": ["users", "core", "analytics"],
+                "schema": {"user_id": "Int64", "username": "Utf8", "email": "Utf8", "created_at": "Datetime", "last_login": "Datetime", "is_active": "Boolean", "user_type": "Utf8"},
+                "owner": "data-engineering",
+                "url": "./tables/users.html"
+            },
+            {
+                "name": "user_events",
+                "description": "Real-time event stream data with user interactions",
+                "table_type": "function",
+                "tags": ["events", "streaming", "analytics", "real-time"],
+                "schema": {"event_id": "Utf8", "user_id": "Int64", "event_type": "Utf8", "event_data": "Utf8", "timestamp": "Datetime", "event_date": "Date", "session_id": "Utf8"},
+                "owner": "data-engineering",
+                "url": "./tables/user_events.html"
+            },
+            {
+                "name": "neural_signals",
+                "description": "Neural signal data from research experiments",
+                "table_type": "function",
+                "tags": ["neuroscience", "signals", "research", "time-series"],
+                "schema": {"signal_id": "Utf8", "neuron_id": "Int64", "cortical_region": "Utf8", "signal_strength": "Float64", "frequency_hz": "Float64", "timestamp": "Datetime", "experiment_id": "Utf8", "spike_detected": "Boolean"},
+                "owner": "research-team",
+                "url": "./tables/neural_signals.html"
+            },
+            {
+                "name": "data_quality_metrics",
+                "description": "Data quality metrics and validation results",
+                "table_type": "function",
+                "tags": ["quality", "monitoring", "validation", "metadata"],
+                "schema": {"table_name": "Utf8", "check_timestamp": "Datetime", "completeness_score": "Float64", "accuracy_score": "Float64", "consistency_score": "Float64", "timeliness_score": "Float64", "overall_score": "Float64", "issues_found": "Int64", "last_updated": "Datetime"},
+                "owner": "data-engineering",
+                "url": "./tables/data_quality_metrics.html"
+            },
+            {
+                "name": "transactions",
+                "description": "Financial transaction records with ACID guarantees",
+                "table_type": "parquet",
+                "tags": ["finance", "transactions", "delta", "acid"],
+                "schema": {"transaction_id": "Utf8", "user_id": "Int64", "amount": "Float64", "transaction_type": "Utf8", "timestamp": "Datetime"},
+                "owner": "finance-team",
+                "url": "./tables/transactions.html"
+            },
+            {
+                "name": "inventory",
+                "description": "Real-time inventory tracking with warehouse locations",
+                "table_type": "parquet",
+                "tags": ["inventory", "warehouse", "real-time", "delta"],
+                "schema": {"item_id": "Utf8", "quantity": "Int64", "location": "Utf8", "last_updated": "Datetime"},
+                "owner": "operations-team",
+                "url": "./tables/inventory.html"
+            }
+        ];
+    </script>
+    <script src="./static/app.js"></script>
+</body>
+</html>
