@@ -1,5 +1,9 @@
 # Production Data Engineering Simulation
 
+[![CI Pipeline](https://github.com/OCWC22/Data-Engineering/workflows/CI%20Pipeline/badge.svg)](https://github.com/OCWC22/Data-Engineering/actions)
+[![Code style: ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/release/python-3110/)
+
 This repository is for learning how to build production grade enterprise level data engineering. It provides a tangible, runnable blueprint based on the architectural principles of high-performance data platforms like Neuralink's Neuralake.
 
 https://www.youtube.com/watch?v=rVSb0u9OTtM&t=763s

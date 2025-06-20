@@ -152,4 +152,9 @@ node_modules/
 .roo 
 .cursor 
 .windsurfrules
+.roomodes.github/branch-protection.json
 .roomodes
+
+
+/github/branch-protection.json
+branch-protection.json
