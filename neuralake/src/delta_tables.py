@@ -16,12 +16,21 @@ import polars as pl
 import pyarrow as pa
 from deltalake import DeltaTable, write_deltalake
 
-from delta_config import (
-    get_delta_storage_options,
-    get_delta_table_uri,
-    get_delta_write_options,
-    initialize_delta_environment
-)
+try:
+    from .delta_config import (
+        get_delta_storage_options,
+        get_delta_table_uri,
+        get_delta_write_options,
+        initialize_delta_environment
+    )
+except ImportError:
+    # Fallback for direct script execution
+    from delta_config import (
+        get_delta_storage_options,
+        get_delta_table_uri,
+        get_delta_write_options,
+        initialize_delta_environment
+    )
 
 logger = logging.getLogger(__name__)
 

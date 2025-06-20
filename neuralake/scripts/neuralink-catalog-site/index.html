@@ -1,0 +1,114 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neuralink Neural Data Catalog</title>
+    <link rel="stylesheet" href="./static/styles.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div>
+                    <h1>Neuralink Neural Data Catalog</h1>
+                    <div class="subtitle">Code as a Catalog • Automatically Generated Documentation</div>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <!-- Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-number">7</span>
+                <div class="stat-label">Total Tables</div>
+            </div>
+            <div class="stat-card neural">
+                <span class="stat-number">3</span>
+                <div class="stat-label">Neural Data Tables</div>
+            </div>
+            <div class="stat-card realtime">
+                <span class="stat-number">4</span>
+                <div class="stat-label">Real-time Tables</div>
+            </div>
+            <div class="stat-card clinical">
+                <span class="stat-number">1</span>
+                <div class="stat-label">Clinical Tables</div>
+            </div>
+        </div>
+        
+        <!-- Search and Filters -->
+        <div class="search-container">
+            <input type="text" id="searchBox" class="search-box" 
+                   placeholder="Search tables by name, description, or tags...">
+        </div>
+        
+        <div class="filters">
+            <div class="filter-tag active" data-filter="all">All Tables</div>
+            
+            <div class="filter-tag" data-filter="function">Function Tables</div>
+            
+            <div class="filter-tag" data-filter="parquet">Parquet Tables</div>
+            
+        </div>
+        
+        <!-- Table Grid -->
+        <div id="tableGrid" class="table-grid">
+            <!-- Tables will be populated by JavaScript -->
+        </div>
+        
+        <!-- Quick Start -->
+        <section style="margin-top: 3rem;">
+            <h2>Quick Start - Neural Data Access</h2>
+            <div class="code-snippet">
+                <button class="copy-button">Copy</button>
+                <pre><code># Neuralake: Simple Systems for Complex Neural Data
+from neuralake.src.catalog_core import default_catalog
+
+# List all neural data tables
+tables = default_catalog.list_tables()
+print(f"Neural tables: {[t for t in tables if 'neural' in t]}")
+
+# Access real-time neural signals
+signals = default_catalog.table("neural_signals")
+recent_signals = signals.filter(
+    pl.col("timestamp_ns") > (pl.datetime.now().timestamp() * 1e9 - 1000000000)
+).collect()
+
+# Access motor predictions for closed-loop control
+predictions = default_catalog.table("motor_predictions") 
+latest_intent = predictions.sort("timestamp_ns", descending=True).limit(1).collect()</code></pre>
+            </div>
+            
+            <h3 style="margin-top: 2rem;">Architecture Highlights</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; margin: 1rem 0;">
+                <div style="background: var(--code-bg); padding: 1rem; border-radius: 8px;">
+                    <strong>🎯 Surgical Strike Writer</strong><br>
+                    Sub-100ms latency for real-time control
+                </div>
+                <div style="background: var(--code-bg); padding: 1rem; border-radius: 8px;">
+                    <strong>⚡ Workhorse Processing</strong><br>
+                    High-throughput batch analytics
+                </div>
+                <div style="background: var(--code-bg); padding: 1rem; border-radius: 8px;">
+                    <strong>🧠 Neural-First Design</strong><br>
+                    Optimized for 30kHz+ signal processing
+                </div>
+            </div>
+        </section>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <p>Generated on 2025-06-20T00:18:19.583431 • 
+               <a href="./api-reference.html">API Reference</a> • 
+               Powered by Neuralake</p>
+        </div>
+    </footer>
+    
+    <script src="./static/app.js"></script>
+</body>
+</html>

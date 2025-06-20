@@ -1,0 +1,159 @@
+[
+  {
+    "name": "neural_signals",
+    "description": "High-frequency neural signals from N1 chip electrodes",
+    "table_type": "function",
+    "tags": [
+      "neural-signals",
+      "real-time",
+      "n1-chip",
+      "high-frequency"
+    ],
+    "schema": {
+      "timestamp_ns": "Int64",
+      "chip_id": "Utf8",
+      "electrode_id": "Int32",
+      "voltage_uv": "Float32",
+      "spike_detected": "Boolean",
+      "sample_rate_hz": "Int32",
+      "session_id": "Utf8"
+    },
+    "owner": "Neural Engineering Team",
+    "url": "./tables/neural_signals.html"
+  },
+  {
+    "name": "spike_events",
+    "description": "Processed spike events extracted from neural signals",
+    "table_type": "function",
+    "tags": [
+      "spikes",
+      "processed",
+      "motor-control",
+      "real-time"
+    ],
+    "schema": {
+      "timestamp_ns": "Int64",
+      "chip_id": "Utf8",
+      "electrode_id": "Int32",
+      "spike_amplitude": "Float32",
+      "waveform_features": "List(Float32)",
+      "classification": "Utf8",
+      "confidence": "Float32"
+    },
+    "owner": "Signal Processing Team",
+    "url": "./tables/spike_events.html"
+  },
+  {
+    "name": "motor_predictions",
+    "description": "Motor intent predictions for closed-loop control",
+    "table_type": "function",
+    "tags": [
+      "motor-control",
+      "predictions",
+      "closed-loop",
+      "real-time"
+    ],
+    "schema": {
+      "timestamp_ns": "Int64",
+      "session_id": "Utf8",
+      "intended_movement": "Utf8",
+      "velocity_x": "Float32",
+      "velocity_y": "Float32",
+      "confidence": "Float32",
+      "model_version": "Utf8",
+      "latency_ms": "Float32"
+    },
+    "owner": "Machine Learning Team",
+    "url": "./tables/motor_predictions.html"
+  },
+  {
+    "name": "patient_sessions",
+    "description": "Patient session metadata and surgical information",
+    "table_type": "function",
+    "tags": [
+      "clinical",
+      "patients",
+      "surgery",
+      "metadata"
+    ],
+    "schema": {
+      "patient_id": "Utf8",
+      "session_id": "Utf8",
+      "surgery_date": "Date",
+      "chip_location": "Utf8",
+      "surgeon": "Utf8",
+      "session_start": "Datetime(time_unit='ns')",
+      "session_duration_minutes": "Int32",
+      "data_quality_score": "Float32"
+    },
+    "owner": "Clinical Operations Team",
+    "url": "./tables/patient_sessions.html"
+  },
+  {
+    "name": "behavioral_metrics",
+    "description": "Experimental task performance metrics and behavioral data",
+    "table_type": "function",
+    "tags": [
+      "research",
+      "behavioral",
+      "tasks",
+      "performance"
+    ],
+    "schema": {
+      "session_id": "Utf8",
+      "task_type": "Utf8",
+      "trial_number": "Int32",
+      "target_reached": "Boolean",
+      "time_to_target_ms": "Float32",
+      "accuracy_score": "Float32",
+      "difficulty_level": "Int32"
+    },
+    "owner": "Research Team",
+    "url": "./tables/behavioral_metrics.html"
+  },
+  {
+    "name": "system_telemetry",
+    "description": "Hardware health monitoring and system telemetry",
+    "table_type": "function",
+    "tags": [
+      "monitoring",
+      "hardware",
+      "telemetry",
+      "alerts"
+    ],
+    "schema": {
+      "timestamp": "Datetime(time_unit='ns')",
+      "chip_id": "Utf8",
+      "battery_level": "Float32",
+      "temperature_c": "Float32",
+      "wireless_signal_strength": "Float32",
+      "electrode_impedance_avg": "Float32",
+      "data_throughput_mbps": "Float32",
+      "error_count": "Int32"
+    },
+    "owner": "Hardware Engineering Team",
+    "url": "./tables/system_telemetry.html"
+  },
+  {
+    "name": "neural_stream_delta",
+    "description": "High-throughput neural signal streaming data stored in Delta Lake format",
+    "table_type": "parquet",
+    "tags": [
+      "delta",
+      "streaming",
+      "neural-signals",
+      "production"
+    ],
+    "schema": {
+      "timestamp": "Datetime(time_unit='ns')",
+      "device_id": "Utf8",
+      "channel": "Int32",
+      "voltage": "Float64",
+      "quality_score": "Float64",
+      "session_id": "Utf8",
+      "patient_id": "Utf8"
+    },
+    "owner": "Data Engineering Team",
+    "url": "./tables/neural_stream_delta.html"
+  }
+]

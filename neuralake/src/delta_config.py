@@ -6,7 +6,11 @@ with our MinIO S3 backend, integrating with the existing config system.
 """
 import os
 from typing import Dict, Any
-from config import get_s3_storage_options
+try:
+    from .config import get_s3_storage_options
+except ImportError:
+    # Fallback for direct script execution
+    from config import get_s3_storage_options
 
 
 def get_delta_storage_options() -> Dict[str, Any]:

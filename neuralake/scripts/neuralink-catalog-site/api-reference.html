@@ -1,0 +1,131 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Reference - Neuralink Neural Data Catalog</title>
+    <link rel="stylesheet" href="./static/styles.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div>
+                    <h1>API Reference</h1>
+                    <div class="subtitle">Neuralake Catalog Python API</div>
+                </div>
+                <div>
+                    <a href="./index.html" style="color: white; text-decoration: none;">← Back to Catalog</a>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <section>
+            <h2>Core Catalog API</h2>
+            
+            <h3>default_catalog.table(name, **kwargs)</h3>
+            <p>Get a table as a Polars LazyFrame.</p>
+            <div class="code-snippet">
+                <button class="copy-button">Copy</button>
+                <pre><code>from neuralake.src.catalog_core import default_catalog
+
+# Get a table
+df = default_catalog.table("your_table_name")
+data = df.collect()  # Execute the lazy query</code></pre>
+            </div>
+            
+            <h3>default_catalog.list_tables(table_type=None)</h3>
+            <p>List all available tables, optionally filtered by type.</p>
+            <div class="code-snippet">
+                <button class="copy-button">Copy</button>
+                <pre><code># List all tables
+all_tables = default_catalog.list_tables()
+
+# List only function tables
+from neuralake.src.catalog_core import TableType
+function_tables = default_catalog.list_tables(TableType.FUNCTION)</code></pre>
+            </div>
+            
+            <h3>default_catalog.describe_table(name)</h3>
+            <p>Get detailed metadata about a table.</p>
+            <div class="code-snippet">
+                <button class="copy-button">Copy</button>
+                <pre><code># Get table metadata
+metadata = default_catalog.describe_table("your_table_name")
+print(f"Columns: {metadata['column_count']}")
+print(f"Schema: {metadata['inferred_schema']}")
+print(f"Description: {metadata['metadata']['description']}")</code></pre>
+            </div>
+        </section>
+        
+        <section>
+            <h2>Table Registration</h2>
+            
+            <h3>@table Decorator</h3>
+            <p>Register a function as a table in the catalog.</p>
+            <div class="code-snippet">
+                <button class="copy-button">Copy</button>
+                <pre><code>from neuralake.src.catalog_core import table
+import polars as pl
+
+@table(description="Sample user data", tags=["users", "demo"])
+def users_table():
+    """User data from the API."""
+    return pl.LazyFrame({
+        "id": [1, 2, 3],
+        "name": ["Alice", "Bob", "Charlie"],
+        "email": ["alice@example.com", "bob@example.com", "charlie@example.com"]
+    })</code></pre>
+            </div>
+            
+            <h3>register_static_table()</h3>
+            <p>Register existing table objects (Delta, Parquet).</p>
+            <div class="code-snippet">
+                <button class="copy-button">Copy</button>
+                <pre><code>from neuralake.src.catalog_core import register_static_table
+from neuralake.src.delta_tables import NeuralakeDeltaTable
+
+# Register a Delta table
+delta_table = NeuralakeDeltaTable("user_events")
+register_static_table(
+    delta_table, 
+    "user_events",
+    description="User interaction events",
+    tags=["events", "analytics"]
+)</code></pre>
+            </div>
+        </section>
+        
+        <section>
+            <h2>Data Export</h2>
+            <p>All tables return Polars LazyFrames, which can be exported to various formats:</p>
+            <div class="code-snippet">
+                <button class="copy-button">Copy</button>
+                <pre><code># Get table data
+df = default_catalog.table("your_table_name").collect()
+
+# Export options
+df.write_csv("data.csv")
+df.write_parquet("data.parquet")
+df.write_json("data.json")
+
+# Convert to other formats
+pandas_df = df.to_pandas()
+arrow_table = df.to_arrow()
+numpy_array = df.to_numpy()</code></pre>
+            </div>
+        </section>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <p><a href="./index.html">← Back to Catalog</a> • Powered by Neuralake</p>
+        </div>
+    </footer>
+    
+    <script src="./static/app.js"></script>
+</body>
+</html>

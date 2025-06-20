@@ -1,0 +1,57 @@
+[
+  {
+    "name": "users",
+    "description": "Enterprise user data with comprehensive user profiles",
+    "table_type": "function",
+    "tags": [
+      "users",
+      "core",
+      "analytics"
+    ],
+    "schema": {},
+    "owner": "data-engineering",
+    "url": "./tables/users.html"
+  },
+  {
+    "name": "user_events",
+    "description": "Real-time event stream data with user interactions",
+    "table_type": "function",
+    "tags": [
+      "events",
+      "streaming",
+      "analytics",
+      "real-time"
+    ],
+    "schema": {},
+    "owner": "data-engineering",
+    "url": "./tables/user_events.html"
+  },
+  {
+    "name": "neural_signals",
+    "description": "Neural signal data from research experiments",
+    "table_type": "function",
+    "tags": [
+      "neuroscience",
+      "signals",
+      "research",
+      "time-series"
+    ],
+    "schema": {},
+    "owner": "research-team",
+    "url": "./tables/neural_signals.html"
+  },
+  {
+    "name": "transactions",
+    "description": "Financial transaction records with ACID guarantees",
+    "table_type": "parquet",
+    "tags": [
+      "finance",
+      "transactions",
+      "delta",
+      "acid"
+    ],
+    "schema": {},
+    "owner": "finance-team",
+    "url": "./tables/transactions.html"
+  }
+]

@@ -1,0 +1,92 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neuralake Data Catalog - Demo</title>
+    <link rel="stylesheet" href="./static/styles.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div>
+                    <h1>Neuralake Data Catalog - Demo</h1>
+                    <div class="subtitle">Code as a Catalog • Automatically Generated Documentation</div>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <!-- Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-number">4</span>
+                <div class="stat-label">Total Tables</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number">3</span>
+                <div class="stat-label">Function Tables</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number">0</span>
+                <div class="stat-label">Delta Tables</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number">1</span>
+                <div class="stat-label">Parquet Tables</div>
+            </div>
+        </div>
+        
+        <!-- Search and Filters -->
+        <div class="search-container">
+            <input type="text" id="searchBox" class="search-box" 
+                   placeholder="Search tables by name, description, or tags...">
+        </div>
+        
+        <div class="filters">
+            <div class="filter-tag active" data-filter="all">All Tables</div>
+            
+            <div class="filter-tag" data-filter="parquet">Parquet Tables</div>
+            
+            <div class="filter-tag" data-filter="function">Function Tables</div>
+            
+        </div>
+        
+        <!-- Table Grid -->
+        <div id="tableGrid" class="table-grid">
+            <!-- Tables will be populated by JavaScript -->
+        </div>
+        
+        <!-- Quick Start -->
+        <section style="margin-top: 3rem;">
+            <h2>Quick Start</h2>
+            <div class="code-snippet">
+                <button class="copy-button">Copy</button>
+                <pre><code># Install and use the catalog
+from neuralake.src.catalog_core import default_catalog
+
+# List all available tables
+tables = default_catalog.list_tables()
+print(f"Available tables: {tables}")
+
+# Get a table as a Polars LazyFrame
+df = default_catalog.table("your_table_name")
+data = df.collect()  # Execute the query</code></pre>
+            </div>
+        </section>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <p>Generated on 2025-06-20T00:00:33.057367 • 
+               <a href="./api-reference.html">API Reference</a> • 
+               Powered by Neuralake</p>
+        </div>
+    </footer>
+    
+    <script src="./static/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,144 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>transactions - Neuralake Catalog</title>
+    <link rel="stylesheet" href="../static/styles.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div>
+                    <h1>transactions</h1>
+                    <div class="subtitle">
+                        <span class="table-type">parquet</span>
+                        Financial transaction records with ACID guarantees
+                    </div>
+                </div>
+                <div>
+                    <a href="../index.html" style="color: white; text-decoration: none;">← Back to Catalog</a>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <!-- Table Information -->
+        <section>
+            <h2>Table Information</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1rem 0;">
+                <div>
+                    <strong>Type:</strong> Parquet
+                </div>
+                <div>
+                    <strong>Owner:</strong> finance-team
+                </div>
+                <div>
+                    <strong>Created:</strong> 2025-06-20T00:00:33.057310
+                </div>
+                <div>
+                    <strong>Source:</strong> .
+                </div>
+            </div>
+            
+            
+            <div class="tags">
+                
+                <span class="tag">finance</span>
+                
+                <span class="tag">transactions</span>
+                
+                <span class="tag">delta</span>
+                
+                <span class="tag">acid</span>
+                
+            </div>
+            
+        </section>
+        
+        <!-- Schema -->
+        
+        
+        <!-- Code Snippets -->
+        <section>
+            <h2>Usage Examples</h2>
+            
+            <h3>Basic Usage</h3>
+            <div class="code-snippet">
+                <button class="copy-button">Copy</button>
+                <pre><code># Import the catalog
+from neuralake.src.catalog_core import default_catalog
+
+# Get the table as a Polars LazyFrame
+transactions_df = default_catalog.table("transactions")
+
+# Execute the query and get results
+data = transactions_df.collect()
+print(f"Shape: {data.shape}")
+print(data.head())</code></pre>
+            </div>
+            
+            <h3>Advanced Query</h3>
+            <div class="code-snippet">
+                <button class="copy-button">Copy</button>
+                <pre><code># Advanced querying with Polars
+import polars as pl
+from neuralake.src.catalog_core import default_catalog
+
+# Get table and perform operations
+transactions_df = (
+    default_catalog.table("transactions")
+    .filter(pl.col("your_column") > 0)  # Add your filter conditions
+    .select([  # Select specific columns
+        pl.col("*")  # or specify columns: pl.col("col1"), pl.col("col2")
+    ])
+    .limit(1000)  # Limit results if needed
+)
+
+# Execute and collect results
+result = transactions_df.collect()</code></pre>
+            </div>
+            
+            
+            
+            <h3>Export to Different Formats</h3>
+            <div class="code-snippet">
+                <button class="copy-button">Copy</button>
+                <pre><code># Export to different formats
+from neuralake.src.catalog_core import default_catalog
+
+# Get the data
+transactions_df = default_catalog.table("transactions")
+data = transactions_df.collect()
+
+# Export to CSV
+data.write_csv("output.csv")
+
+# Export to Parquet
+data.write_parquet("output.parquet")
+
+# Convert to Pandas if needed
+pandas_df = data.to_pandas()
+
+# Convert to PyArrow Table
+arrow_table = data.to_arrow()</code></pre>
+            </div>
+        </section>
+        
+        
+    </div>
+    
+    <footer>
+        <div class="container">
+            <p><a href="../index.html">← Back to Catalog</a> • 
+               <a href="../api-reference.html">API Reference</a> • 
+               Powered by Neuralake</p>
+        </div>
+    </footer>
+    
+    <script src="../static/app.js"></script>
+</body>
+</html>
