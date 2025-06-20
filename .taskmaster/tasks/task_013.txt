@@ -1,0 +1,25 @@
+# Task ID: 13
+# Title: Develop Sample Large-scale ELT Job in Spark
+# Status: pending
+# Dependencies: 12
+# Priority: medium
+# Description: Create a sample large-scale ELT job in Spark that showcases the 'workhorse' part of the dual-engine philosophy, reading from Delta tables created by the low-latency writer and performing complex transformations.
+# Details:
+1. Design a representative ELT workflow using Spark
+2. Implement data transformation logic for complex analytics
+3. Read from Delta tables created by the low-latency writer
+4. Perform aggregations, joins, and complex computations
+5. Write results back to new Delta tables
+6. Add data quality checks and validation
+7. Implement error handling and recovery
+8. Document the ELT workflow and patterns
+
+# Test Strategy:
+1. Test ELT job execution with sample data
+2. Verify data transformation accuracy
+3. Test performance with large datasets
+4. Test data quality checks and validation
+5. Test error handling and recovery scenarios
+6. Test integration with Delta Lake tables
+7. Performance comparison with Polars/DataFusion
+8. End-to-end pipeline testing

@@ -1,0 +1,26 @@
+# Task ID: 8
+# Title: Enhance Sample Data Generation with Polars
+# Status: pending
+# Dependencies: 1
+# Priority: medium
+# Description: Refactor scripts/create_sample_data.py to support generating larger, more complex datasets using Polars for data generation and manipulation.
+# Details:
+1. Design a flexible schema definition format (JSON/YAML)
+2. Use **Polars** for all data generation and manipulation operations
+3. Implement data generators for common data types using Faker and NumPy
+4. Support statistical distributions via NumPy's distribution functions
+5. Add correlation capabilities between fields
+6. Implement parallel generation for performance
+7. Support direct parallel writing to MinIO in Parquet format
+8. Configure the utility to create many small files rather than few large ones
+9. Add progress reporting and resumability for large generations
+
+# Test Strategy:
+1. Unit tests for each data generator type
+2. Validation tests to ensure generated data matches specified distributions
+3. Performance tests measuring generation speed with Polars
+4. Memory usage monitoring during large dataset generation
+5. End-to-end test generating a small dataset and validating schema compliance
+6. Test parallel generation with different thread counts
+7. Test parallel writes to MinIO with various file size configurations
+8. Benchmark Polars performance vs other DataFrame libraries

@@ -1,0 +1,25 @@
+# Task ID: 15
+# Title: Enhanced Code-as-Catalog Features
+# Status: pending
+# Dependencies: 5, 14
+# Priority: medium
+# Description: Extend the catalog system with support for complex data sources (CSV files, JDBC connections), materialized views stored as Delta tables, and integrated data quality checks.
+# Details:
+1. Add support for CSV files as catalog data sources
+2. Implement JDBC connection support for external databases
+3. Create materialized view definitions stored as Delta tables
+4. Integrate data quality checks within the catalog framework
+5. Add data lineage tracking for complex transformations
+6. Implement catalog versioning and change management
+7. Add advanced metadata management capabilities
+8. Extend static site generation for new features
+
+# Test Strategy:
+1. Test CSV file integration and metadata extraction
+2. Test JDBC connection and data access
+3. Test materialized view creation and management
+4. Test data quality check integration
+5. Test lineage tracking for complex scenarios
+6. Test catalog versioning and change management
+7. Test extended static site generation
+8. Integration testing with existing catalog features

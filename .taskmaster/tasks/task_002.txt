@@ -1,0 +1,396 @@
+# Task ID: 2
+# Title: Integrate Code Quality Tooling
+# Status: pending
+# Dependencies: 1
+# Priority: high
+# Description: Add ruff as a linter and formatter to pyproject.toml dev dependencies, configure it, run it across the codebase to fix issues, and update README.md with usage instructions.
+# Details:
+1. Add `ruff` to the `[tool.poetry.group.dev.dependencies]` section in `pyproject.toml`
+2. Create a `pyproject.toml` configuration section for ruff with appropriate settings
+3. Run `ruff check` across the entire codebase to identify issues
+4. Run `ruff format` to automatically fix formatting issues
+5. Address any remaining linting issues that require manual fixes
+6. Update the main `README.md` with a "Code Quality" section explaining ruff usage
+7. Add ruff commands to any existing development scripts or documentation
+
+# Test Strategy:
+1. Verify ruff installation and configuration
+2. Test that `ruff check` runs without errors after fixes
+3. Test that `ruff format` produces consistent formatting
+4. Verify all Python files pass linting checks
+5. Test that development workflow documentation is clear and accurate
+6. Ensure ruff integrates properly with existing development tools
+
+# Subtasks:
+## 1. Add ruff to pyproject.toml dev dependencies [pending]
+### Dependencies: None
+### Description: Add ruff as a development dependency in the Poetry configuration file with specific version and install it
+### Details:
+**Files to modify:**
+- `neuralake/pyproject.toml`
+
+**Exact steps:**
+1. Navigate to `neuralake/` directory: `cd neuralake/`
+2. Add ruff to dev dependencies by editing `pyproject.toml`:
+   ```toml
+   [tool.poetry.group.dev.dependencies]
+   ruff = "^0.1.9"
+   pytest = "^7.4.3"
+   pytest-cov = "^4.1.0"
+   ```
+3. Install the new dependency: `poetry install`
+4. Verify installation: `poetry run ruff --version`
+5. Create initial ruff configuration in pyproject.toml
+
+**Expected output:** 
+- ruff version should be displayed
+- `poetry.lock` file updated with ruff dependencies
+
+**Error handling:**
+- If poetry install fails, run `poetry update` first
+- If ruff not found, ensure you're in poetry shell: `poetry shell`
+
+## 2. Configure comprehensive ruff settings in pyproject.toml [pending]
+### Dependencies: None
+### Description: Set up detailed ruff configuration with specific rules, exclusions, and formatting options for production-ready code quality
+### Details:
+**Files to modify:**
+- `neuralake/pyproject.toml`
+
+**Exact configuration to add:**
+```toml
+[tool.ruff]
+# Set the maximum line length to 88 (black default)
+line-length = 88
+target-version = "py311"
+
+# Enable specific rule groups
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings  
+    "F",      # pyflakes
+    "I",      # isort
+    "B",      # flake8-bugbear
+    "C4",     # flake8-comprehensions
+    "UP",     # pyupgrade
+    "ARG",    # flake8-unused-arguments
+    "SIM",    # flake8-simplify
+    "TCH",    # flake8-type-checking
+    "PTH",    # flake8-use-pathlib
+]
+
+# Never enforce these rules
+ignore = [
+    "E501",   # Line too long (handled by formatter)
+    "B008",   # Do not perform function calls in argument defaults
+    "B904",   # Allow raise without from
+]
+
+# Exclude specific directories
+exclude = [
+    ".git",
+    ".mypy_cache",
+    ".ruff_cache",
+    ".venv",
+    "__pycache__",
+    "build",
+    "dist",
+    "docs/build/",
+]
+
+[tool.ruff.format]
+# Use double quotes for strings
+quote-style = "double"
+# Prefer Unix line endings
+line-ending = "lf"
+
+[tool.ruff.lint.isort]
+# Group imports by type
+force-single-line = false
+force-sort-within-sections = true
+known-first-party = ["neuralake"]
+```
+
+**Commands to test configuration:**
+1. `cd neuralake/`
+2. `poetry run ruff check .` (should show current issues)
+3. `poetry run ruff check --select F .` (check only critical errors)
+4. `poetry run ruff format --check .` (check formatting without changing)
+
+**Validation steps:**
+- Configuration should load without errors
+- Rules should apply to Python files in src/ and scripts/
+- Exclusions should work for __pycache__ directories
+
+## 3. Run ruff across codebase and systematically fix all issues [pending]
+### Dependencies: None
+### Description: Execute comprehensive ruff analysis and fix all linting and formatting issues in the existing codebase
+### Details:
+**Commands to execute in order:**
+
+1. **Navigate to project directory:**
+   ```bash
+   cd neuralake/
+   ```
+
+2. **Initial assessment - check all issues:**
+   ```bash
+   poetry run ruff check . --output-format=github
+   ```
+
+3. **Auto-fix safe issues:**
+   ```bash
+   poetry run ruff check . --fix
+   ```
+
+4. **Format all Python files:**
+   ```bash
+   poetry run ruff format .
+   ```
+
+5. **Check remaining issues after auto-fix:**
+   ```bash
+   poetry run ruff check . --diff
+   ```
+
+6. **Fix specific file types systematically:**
+   ```bash
+   # Check core source files
+   poetry run ruff check src/ --select F,E
+   
+   # Check scripts directory  
+   poetry run ruff check scripts/ --select F,E
+   
+   # Check any remaining Python files
+   poetry run ruff check *.py --select F,E
+   ```
+
+**Files that will likely need manual fixes:**
+- `src/config.py` - import organization
+- `src/my_tables.py` - unused imports, line length
+- `src/my_catalog.py` - import order
+- `src/query_data.py` - formatting issues
+- `scripts/*.py` - various formatting issues
+
+**Expected manual fixes needed:**
+- Remove unused imports (F401 errors)
+- Fix line length issues (E501 - if not auto-formatted)
+- Organize imports per isort rules (I001 errors)
+- Fix undefined variables (F821 errors)
+- Remove unused variables (F841 errors)
+
+**Validation commands:**
+```bash
+# Final check - should show zero issues
+poetry run ruff check .
+
+# Confirm formatting is correct
+poetry run ruff format --check .
+```
+
+**Error handling:**
+- If syntax errors appear, fix Python syntax first
+- If import errors occur, ensure all dependencies are installed: `poetry install`
+- For persistent issues, check specific rules with: `poetry run ruff rule <RULE_CODE>`
+
+## 4. Create development scripts and update README with comprehensive code quality documentation [pending]
+### Dependencies: None
+### Description: Add convenience scripts for code quality checks and comprehensive README documentation with examples and troubleshooting
+### Details:
+**Files to create/modify:**
+
+1. **Create `neuralake/scripts/lint.py`:**
+```python
+#!/usr/bin/env python3
+"""
+Development script for running code quality checks.
+Usage: python scripts/lint.py [--fix] [--format-only] [--check-only]
+"""
+import subprocess
+import sys
+from pathlib import Path
+
+def run_command(cmd: list[str], description: str) -> bool:
+    """Run a command and return success status."""
+    print(f"🔍 {description}")
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    
+    if result.returncode == 0:
+        print(f"✅ {description} - PASSED")
+        if result.stdout.strip():
+            print(result.stdout)
+        return True
+    else:
+        print(f"❌ {description} - FAILED")
+        if result.stderr.strip():
+            print(result.stderr)
+        if result.stdout.strip():
+            print(result.stdout)
+        return False
+
+def main():
+    """Main lint script."""
+    fix_mode = "--fix" in sys.argv
+    format_only = "--format-only" in sys.argv
+    check_only = "--check-only" in sys.argv
+    
+    # Change to project root
+    os.chdir(Path(__file__).parent.parent)
+    
+    success = True
+    
+    if not check_only:
+        if fix_mode:
+            success &= run_command(
+                ["poetry", "run", "ruff", "check", ".", "--fix"],
+                "Auto-fixing ruff issues"
+            )
+        
+        success &= run_command(
+            ["poetry", "run", "ruff", "format", "."],
+            "Formatting code with ruff"
+        )
+    
+    if not format_only:
+        success &= run_command(
+            ["poetry", "run", "ruff", "check", "."],
+            "Checking code with ruff"
+        )
+        
+        success &= run_command(
+            ["poetry", "run", "ruff", "format", "--check", "."],
+            "Checking code formatting"
+        )
+    
+    if success:
+        print("\n🎉 All code quality checks passed!")
+        sys.exit(0)
+    else:
+        print("\n💥 Some checks failed. Please fix the issues above.")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()
+```
+
+2. **Update `neuralake/README.md` - Add Code Quality section:**
+```markdown
+## Code Quality
+
+This project uses [ruff](https://github.com/astral-sh/ruff) for linting and formatting to ensure consistent, high-quality code.
+
+### Quick Commands
+
+```bash
+# Run all quality checks
+python scripts/lint.py
+
+# Auto-fix issues and format code
+python scripts/lint.py --fix
+
+# Only format code (no linting)
+python scripts/lint.py --format-only
+
+# Only check (no formatting)
+python scripts/lint.py --check-only
+```
+
+### Manual Commands
+
+```bash
+# Check for issues
+poetry run ruff check .
+
+# Auto-fix safe issues
+poetry run ruff check . --fix
+
+# Format all Python files
+poetry run ruff format .
+
+# Check formatting without changing files
+poetry run ruff format --check .
+```
+
+### Configuration
+
+Ruff configuration is in `pyproject.toml` under `[tool.ruff]`. Key settings:
+
+- **Line length:** 88 characters (Black default)
+- **Target Python:** 3.11+
+- **Enabled rules:** pycodestyle, pyflakes, isort, flake8-bugbear, and more
+- **Import sorting:** Groups imports with neuralake as first-party
+
+### Pre-commit Workflow
+
+Before committing code:
+
+1. Run `python scripts/lint.py --fix` to auto-fix issues
+2. Review and commit the changes
+3. Ensure `python scripts/lint.py` passes with no errors
+
+### Troubleshooting
+
+**Import errors:**
+```bash
+# Ensure all dependencies are installed
+poetry install
+```
+
+**Syntax errors:**
+- Fix Python syntax issues first before running ruff
+
+**Persistent formatting issues:**
+```bash
+# Check specific file
+poetry run ruff check src/my_tables.py --verbose
+
+# Get help on specific rule
+poetry run ruff rule F401
+```
+
+### IDE Integration
+
+**VS Code:**
+Install the "Ruff" extension for real-time linting and formatting.
+
+**PyCharm:**
+Configure ruff as external tool or use the ruff plugin.
+```
+
+3. **Create `neuralake/Makefile` for convenience:**
+```makefile
+.PHONY: lint format check install test help
+
+help:  ## Show this help
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
+
+install:  ## Install dependencies
+	poetry install
+
+lint:  ## Run linting and formatting
+	python scripts/lint.py --fix
+
+check:  ## Check code quality without fixing
+	python scripts/lint.py
+
+format:  ## Format code only
+	python scripts/lint.py --format-only
+
+test:  ## Run tests (when implemented)
+	poetry run pytest
+
+clean:  ## Clean cache files
+	find . -type d -name "__pycache__" -delete
+	find . -type d -name ".ruff_cache" -delete
+	find . -type f -name "*.pyc" -delete
+```
+
+**Commands to test setup:**
+```bash
+cd neuralake/
+chmod +x scripts/lint.py
+python scripts/lint.py --check-only
+make help
+make check
+```
+

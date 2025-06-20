@@ -1,21 +1,94 @@
-**PRD: Neuralake Blueprint Expansion and Scaling (Local-First Development)**
+# Product Requirements Document: Neuralake Productionization and Expansion
 
-**Objective:** Evolve the current `neuralake` proof-of-concept into a robust, scalable data platform that fully implements the architectural vision outlined in `ONBOARDING.md`. This project will enable at-scale testing, performance benchmarking, and provide a rich learning environment for modern data engineering practices, **all while using a local-first, zero-cost development strategy.**
+## 1. Objective
+To evolve the current `neuralake` proof-of-concept into a robust, scalable, and production-ready data platform following the exact architectural patterns described by Neuralink's engineering team. This involves implementing foundational engineering best practices (CI/CD, code quality, enhanced testing) and then executing the specific technical blueprint for at-scale data operations, all while maintaining our local-first, zero-cost development strategy.
 
-**Key Initiatives:**
+## 2. Part 1: Foundational Improvements (Immediate Priorities)
 
-1.  **Cloud Integration:** Transition the platform's storage backend from the local filesystem to a cloud-native object store. **Strategy:** For initial development and cost-effective testing, we will use a local, S3-compatible alternative like **MinIO (run via Docker)**. This allows for full-featured testing of Delta Lake capabilities without incurring cloud costs. The final transition to a managed AWS S3 bucket will be a subsequent step after local validation.
+This phase focuses on hardening the existing codebase, automating workflows, and implementing the core components that enable the "Code as a Catalog" philosophy and low-latency data operations.
 
-2.  **Scalable Data Generation:** Develop a powerful data generation utility capable of creating large, multi-gigabyte or terabyte-scale datasets. **Strategy:** A **Python utility (using Faker and NumPy)** will generate configurable datasets and write them directly to the local MinIO instance, simulating high-throughput writes by creating many small files that can be compacted later.
+1.  **Integrate Code Quality Tooling:** Enforce consistent code style and prevent common errors.
+    *   **Requirements:** Add `ruff` as a linter and formatter to `pyproject.toml` dev dependencies. Configure it, run it across the codebase to fix issues, and update `README.md` with usage instructions.
 
-3.  **Implement Full Delta Lake Capabilities:** Replace the simple `ParquetTable` with a full-featured `DeltaTable` implementation. **Strategy:** We will use the **`delta-rs` (Rust) library against MinIO** to implement ACID transactions, schema evolution, and time travel. The "Low-Latency Writer" pattern will be implemented with distinct, concurrent processes for writing, compaction, and vacuuming to handle the "small file problem" locally.
+2.  **Implement CI/CD Pipeline:** Automate testing and quality checks to ensure code integrity.
+    *   **Requirements:** Create a GitHub Actions workflow (`.github/workflows/ci.yml`) that triggers on push/pull-request to `main`. It must install dependencies via Poetry, run the code quality tools, and execute the `production_verification.py` test suite in both `local` and `production` modes.
 
-4.  **Real-time Ingestion Pipeline:** Build a streaming data pipeline using Apache Kafka as the source. **Strategy:** A complete, local streaming pipeline will be built using a **Dockerized Apache Kafka instance**, a mock data producer, and a lightweight consumer service (Rust or Spark Streaming) that writes data in micro-batches to a "Bronze" Delta table on MinIO.
+3.  **Implement Core Delta Lake Table Functionality:** Establish the transactional storage foundation.
+    *   **Requirements:** Implement a DeltaTable class that leverages the delta-rs library to provide ACID transactions, schema evolution, and time travel capabilities against MinIO storage. This is the foundation upon which all other data operations will be built.
 
-5.  **Performance Benchmarking Framework:** Create a suite of benchmark tests to measure the performance of the Rust-based query engine. **Strategy:** A benchmark harness will execute a predefined suite of queries (using **Polars/DataFusion**) against the large datasets generated and stored in the local MinIO instance, measuring latency and throughput.
+4.  **Implement "Code as a Catalog" Core & Static Site Generation:** Build the primary user-facing abstraction.
+    *   **Requirements:** Following the Neuralink model, create the core Python classes (`Catalog`, `ModuleDatabase`, table definitions) that allow defining tables in code using decorators and class definitions. Implement automated static HTML site generation from table definitions for visual browsing and discovery. Generate Python client code snippets for users to copy-paste. This system must support both `ParquetTable` and `DeltaTable` definitions with full metadata extraction.
+    *   **Key Feature:** The catalog system should automatically generate comprehensive documentation and browsable interfaces, eliminating the need for manually maintained documentation that can become stale.
 
-6.  **Dual-Engine Demonstration (Spark Integration):** Set up a containerized Apache Spark environment. **Strategy:** A community **Docker image for Apache Spark** will be configured to connect to the local MinIO instance. This will be used to run a large-scale ELT job, demonstrating the "workhorse" engine's ability to operate on the same data as the "surgical strike" Rust stack.
+5.  **Implement Low-Latency "Surgical Strike" Writer:** Build the core real-time ingestion mechanism.
+    *   **Requirements:** Following the Neuralink three-process architecture, implement separate, concurrent processes:
+        - **Writer Process:** Continuously appends small files to Delta tables with minimal latency
+        - **Compaction Process:** Scheduled process that merges small files into larger, read-optimized files
+        - **Vacuum Process:** Cleans up stale, unreferenced files beyond retention period
+    *   **Concurrency Control:** Use AWS DynamoDB as the locking provider for delta-rs to enable safe concurrent operations
+    *   **Technology Stack:** Implement in Rust for maximum performance, integrating with our MinIO-based Delta Lake storage
+    *   **Rationale:** This is the primary mechanism for populating the lakehouse with low-latency requirements and must be foundational to enable all streaming use cases.
 
-7.  **API for Querying:** Expose the `neuralake` catalog via a simple, fast API. **Strategy:** A **Dockerized FastAPI service** will provide a query endpoint. This service will invoke the local query engine (Polars/DataFusion) to run queries against the Delta tables in MinIO and return results as JSON.
+6.  **Develop Enhanced Testing Framework:** Create comprehensive testing with Polars standardization.
+    *   **Requirements:** Set up pytest as the primary testing framework with proper configuration. Create comprehensive unit tests, integration tests, and production verification scenarios. Establish **Polars DataFrames** as the standard for all non-Spark data manipulation, ensuring all tests validate Polars-based operations. Include coverage reporting and automated execution.
 
-8.  **Advanced 'Code-as-Catalog' Features:** Enhance the `neuralake` library to support more complex data sources, materialized views, and data quality checks. **Strategy:** These features will be built on the local infrastructure, including connecting to **Dockerized databases (e.g., Postgres)**, storing materialized views as Delta tables in MinIO, and running data quality checks within the local data pipelines. 
+7.  **Enhance Sample Data Generation:** Improve the quality, realism, and scale of test data.
+    *   **Requirements:** Refactor `scripts/create_sample_data.py` to support generating larger, more complex datasets with configurable parameters (row count, schema). The data should include more varied types to better test `neuralake` capabilities. Use **Polars** for data generation and manipulation.
+
+8.  **Automate and Enhance Documentation:**
+    *   **API Docs:** Enhance `scripts/generate_api_docs.py` to automatically scan `neuralake/src/` and generate clean Markdown docs for all public APIs, saving them to `docs/reference/api/`. This script must be integrated into the CI/CD pipeline to ensure docs are always in sync with code.
+    *   **Catalog Tutorial:** Write a new tutorial in `docs/tutorials/` explaining how to define and register a new table in the "Code as a Catalog" system.
+    *   **General Maintenance:** Continuously ensure all READMEs and diagrams stay synchronized with the evolving codebase and structure. Update `ONBOARDING.md` to note the automatic S3 credential handling in the local environment.
+
+## 3. Part 2: Blueprint Expansion (Long-Term Roadmap)
+
+This phase focuses on building out the at-scale features of the data platform, following the exact patterns described in the Neuralink engineering blueprint.
+
+9.  **Set Up Apache Kafka for Real-time Ingestion:** Configure the streaming data backbone.
+    *   **Requirements:** Set up Kafka infrastructure using Docker, configure topics and partitions, implement Kafka clients that integrate with the low-latency writer system for continuous data flow into Delta tables.
+
+10. **Implement Auto-Generated SQL API via ROAPI:** Create high-performance, zero-maintenance APIs.
+    *   **Requirements:** Following the Neuralink model, implement **ROAPI** (Read-Only API) using **Apache DataFusion** as the query engine. This system must auto-generate HTTP APIs that accept SQL queries from the "Code as a Catalog" table definitions. No custom API code should be required - the entire API surface is generated from the table metadata.
+    *   **Technology Stack:** Use the Rust-based ROAPI project with DataFusion for maximum query performance and minimal resource overhead.
+    *   **Integration:** The API endpoints must be automatically generated and updated whenever table definitions change in the catalog.
+
+11. **Create Performance Benchmarking Framework:** Measure the Rust-based query engine performance.
+    *   **Requirements:** Develop a suite of benchmark tests to measure **Polars/DataFusion** query performance against scaled datasets on MinIO. Include standard query patterns (scan, filter, join, aggregate) and compare against Spark performance for the "dual-engine" validation.
+
+12. **Set Up Containerized Apache Spark Environment:** Enable the "workhorse" engine.
+    *   **Requirements:** Configure a containerized Apache Spark environment that can connect to the same Delta Lake on MinIO. This provides the "workhorse" complement to the "surgical strike" Rust stack for large-scale ELT operations.
+
+13. **Develop Sample Large-scale ELT Job in Spark:** Demonstrate dual-engine capability.
+    *   **Requirements:** Create a sample large-scale ELT job in Spark that showcases the "workhorse" part of the dual-engine philosophy. The job should read from the Delta tables created by the low-latency writer and perform complex transformations.
+
+14. **Real-time Ingestion Pipeline Integration:** Connect all streaming components.
+    *   **Requirements:** Build a complete pipeline that connects Kafka → Low-Latency Writer → Delta Tables → ROAPI, demonstrating the full real-time data flow with both hot path (real-time queries) and cold path (Spark ELT) capabilities.
+
+15. **Enhanced Code-as-Catalog Features:** Advanced data platform capabilities.
+    *   **Requirements:** Extend the catalog system with support for complex data sources (CSV files, JDBC connections), materialized views stored as Delta tables, and integrated data quality checks that execute within the catalog framework.
+
+16. **Advanced Monitoring and Data Governance:** Enterprise-grade operations.
+    *   **Requirements:** Implement comprehensive metrics collection, data lineage tracking, and automated compliance reporting. Integrate with the catalog system to provide governance metadata alongside technical metadata.
+
+17. **End-to-End Integration and Documentation:** Unified system deployment.
+    *   **Requirements:** Integrate all components into a cohesive system with unified deployment configuration, comprehensive documentation, and end-to-end examples showcasing the complete data flow from ingestion through the dual-engine query capabilities.
+
+## 4. Key Architectural Principles
+
+**"Simple Systems for Complex Data":** Following Neuralink's philosophy:
+- Systems must scale down to a single developer machine and up to stateless clusters
+- Prioritize composable libraries over distributed services for the core development loop
+- No large, stateful distributed clusters - state resides in the data layer (Delta Lake)
+- **Code as a Catalog:** Define tables in code, generate catalogs and APIs without separate services
+
+**Dual-Engine Architecture:**
+- **"Surgical Strike" (Rust Stack):** Polars + DataFusion + ROAPI for low-latency, high-performance operations
+- **"Workhorse" (Spark Stack):** Apache Spark for large-scale, distributed ELT operations
+- Both engines operate on the same Delta Lake storage, providing flexibility for different use cases
+
+**Technology Standardization:**
+- **Rust** for performance-critical components (writer, query engine, API layer)
+- **Polars** as the standard DataFrame library for all non-Spark operations
+- **Delta Lake** for all transactional storage with ACID guarantees
+- **Apache DataFusion** for embeddable query processing
+- **ROAPI** for auto-generated, high-performance SQL APIs 

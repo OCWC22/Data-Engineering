@@ -4,6 +4,33 @@ This repository is for learning how to build production grade enterprise level d
 
 https://www.youtube.com/watch?v=rVSb0u9OTtM&t=763s
 
+## 🎯 **What We're Building: See TaskMaster for Complete Roadmap**
+
+**Want to see EVERYTHING we're building?** 
+
+👉 **Go to `.taskmaster/tasks/tasks.json`** - This is our comprehensive project roadmap with 17 detailed tasks
+
+👉 **Or use TaskMaster CLI** to explore tasks interactively:
+```bash
+# See all tasks
+poetry run taskmaster get-tasks --with-subtasks
+
+# See next task to work on  
+poetry run taskmaster next-task
+
+# Get specific task details
+poetry run taskmaster get-task --id 2
+```
+
+### Current Project Status (17 Tasks Total):
+- ✅ **Task 1**: S3/MinIO Foundation (COMPLETE)
+- 🚧 **Tasks 2-7**: Foundational improvements (Code quality, CI/CD, Delta Lake, Code-as-Catalog, Low-latency writer, Testing)
+- 📋 **Tasks 8-17**: Blueprint expansion (Kafka, ROAPI, Performance benchmarking, Spark, Real-time pipelines, etc.)
+
+**⚠️ IMPORTANT:** This isn't just a demo - we're building a **complete production data engineering platform** following Neuralink's exact architectural patterns. Each task has comprehensive subtasks with specific code, configurations, and implementation details.
+
+## The Core Philosophy
+
 The core philosophy is building **Simple Systems for Complex Data**, centered on two key ideas:
 1.  **Code-as-Catalog:** The entire data landscape is defined, versioned, and queried as code. No GUIs, no separate services, no stale documentation. The code is the single source of truth.
 2.  **Lightweight, Performant Tooling:** The stack is built on a foundation of Rust-based libraries (`polars`, `datafusion`) for maximum performance and a modern Python toolchain (`poetry`, `uv`) for a superior developer experience.
@@ -12,6 +39,9 @@ The core philosophy is building **Simple Systems for Complex Data**, centered on
 
 This repository follows a structured layout to separate concerns and make the project, especially its documentation, easy to navigate for both humans and AI agents.
 
+-   **`.taskmaster/`**: **🎯 START HERE** - Complete project planning system
+    -   `tasks/tasks.json`: **Master roadmap** with all 17 tasks and detailed subtasks
+    -   `docs/prd.txt`: Product Requirements Document explaining the full vision
 -   `docs/`: The central hub for all documentation. It follows a framework inspired by [Diátaxis](https://diataxis.fr/), organized into:
     -   `explanation/`: High-level concepts, architectural deep-dives, and case studies (e.g., `neuralake.md`).
     -   `how-to/`: Practical, step-by-step guides for specific tasks (e.g., `upgrade_dev_to_prod.md`).
@@ -22,6 +52,31 @@ This repository follows a structured layout to separate concerns and make the pr
     -   `scripts/`: Utility and verification scripts (`production_verification.py`, `create_sample_data.py`).
     -   `pyproject.toml` & `poetry.lock`: Poetry configuration for managing dependencies.
 -   `README.md`: This file, providing an overview of the entire playground.
+
+## What Makes This Project Special: Neuralink's Architecture
+
+We're implementing the **exact** data engineering patterns described by Neuralink's engineering team:
+
+### 🏗️ **Dual-Engine Architecture:**
+- **"Surgical Strike" (Rust Stack):** Polars + DataFusion + ROAPI for low-latency, high-performance operations
+- **"Workhorse" (Spark Stack):** Apache Spark for large-scale, distributed ELT operations
+- Both engines operate on the same Delta Lake storage
+
+### 🔧 **Technology Stack:**
+- **Rust** for performance-critical components (writer, query engine, API layer)
+- **Polars** as the standard DataFrame library for all non-Spark operations  
+- **Delta Lake** for all transactional storage with ACID guarantees
+- **Apache DataFusion** for embeddable query processing
+- **ROAPI** for auto-generated, high-performance SQL APIs
+
+### 🚀 **Key Components We're Building:**
+1. **Low-Latency "Surgical Strike" Writer** (Rust-based, 3-process architecture)
+2. **Code-as-Catalog System** (Define tables in code, generate APIs automatically)
+3. **Auto-Generated SQL APIs** (ROAPI + DataFusion, no custom API code)
+4. **Real-time Streaming Pipeline** (Kafka → Writer → Delta → ROAPI)
+5. **Performance Benchmarking** (Comparing "surgical strike" vs "workhorse" engines)
+
+**📖 For the complete technical deep-dive, see [docs/explanation/neuralake.md](./docs/explanation/neuralake.md)**
 
 ## An AI-Native Development Philosophy
 
@@ -37,7 +92,7 @@ The `docs/` directory is the soul of this repository. It's where the "why" behin
 
 We follow a structured, iterative process designed to ensure that every change is well-planned, researched, and documented.
 
-1.  **Plan with Taskmaster:** Every new feature begins in **[Taskmaster](https://github.com/eyaltoledano/claude-task-master)**. We create a Product Requirements Document (`.taskmaster/docs/prd.md`) and use Taskmaster to generate a detailed, structured plan. This is our single source of truth for what needs to be built.
+1.  **Plan with Taskmaster:** Every new feature begins in **[Taskmaster](https://github.com/eyaltoledano/claude-task-master)**. We create a Product Requirements Document (`.taskmaster/docs/prd.txt`) and use Taskmaster to generate a detailed, structured plan. This is our single source of truth for what needs to be built.
 
 2.  **Deep Research & Refinement:** With a plan in hand, we turn to external, specialized AI tools for deep research. We use reasoning models (like Claude 4 Sonnet Thinking or Gemini 2.5 Pro with Extended Thinking in Google AI Studio, o3) paired with research tools that have full web and social access (like Perplexity) to validate our approach against the latest best practices, library documentation, and security advisories. The findings from this research are used to refine the plan. 
 
@@ -61,9 +116,9 @@ To fully embrace this AI-native workflow, we strongly recommend an IDE integrate
 
 Our recommended stack of MCPs includes:
 
-1.  **[Context7](https://context.ai/):** (HIGHLY RECOMMENDED) Provides always-up-to-date documentation for any library, directly in your IDE. It's more reliable than any web search.
-2.  **Sequential Thinking:** Turns any base model into a powerful reasoning engine, perfect for planning and problem-solving.
-3.  **Taskmaster:** The core of our project management, allowing you to interact with the project plan using natural language.
+1.  **[Task Master](https://github.com/eyaltoledano/claude-task-master):** (ESSENTIAL) The core of our project management system - see tasks, update status, get next steps
+2.  **[Context7](https://context.ai/):** (HIGHLY RECOMMENDED) Provides always-up-to-date documentation for any library, directly in your IDE. It's more reliable than any web search.
+3.  **Sequential Thinking:** Turns any base model into a powerful reasoning engine, perfect for planning and problem-solving.
 4.  **Others:** Explore other MCPs like **Supabase** (for database work), or find ones that suit your workflow on **[Smithery](https://smithery.ai/)**, **Glama**, or **Composio**. You can build your own if you don't find the one you want. 
 
 I recommend using Smithery because it's the easiest way to setup external MCPs to your IDE. Cursor, Windsurf, Trae have started offering toggle MCP servers, explore those first.
@@ -177,6 +232,8 @@ poetry run ruff check .
 ## Explore Further
 
 This playground is your starting point.
+*   **🎯 MOST IMPORTANT: Check `.taskmaster/tasks/tasks.json`** to see our complete 17-task roadmap
+*   **📋 Use TaskMaster:** Install the MCP and interact with tasks via natural language
 *   **Dive Deeper:** Read the detailed architectural breakdown in **[docs/explanation/neuralake.md](./docs/explanation/neuralake.md)**.
 *   **Experiment:** Add a new data source in `neuralake/src/my_tables.py` (e.g., from a CSV or a live API).
 *   **Build:** Write a new query in `neuralake/src/query_data.py` to perform more complex aggregations or transformations.

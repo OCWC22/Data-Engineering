@@ -1,0 +1,52 @@
+# Task ID: 5
+# Title: Implement Code as a Catalog Core & Static Site Generation
+# Status: pending
+# Dependencies: 3, 4
+# Priority: high
+# Description: Following the Neuralink model, create the core Python classes that enable defining tables in code using decorators and class definitions, with automated static HTML site generation from table definitions.
+# Details:
+1. Create core Python catalog classes (`Catalog`, `ModuleDatabase`, table definitions) following Neuralink's approach
+2. Implement table definition decorators and class-based definitions for both `ParquetTable` and `DeltaTable`
+3. Support full metadata extraction from code definitions
+4. Implement automated static HTML site generation for visual browsing and discovery
+5. Generate Python client code snippets for users to copy-paste
+6. Ensure the catalog system automatically generates comprehensive documentation
+7. Eliminate the need for manually maintained documentation that can become stale
+8. Support the 'Code as a Catalog' philosophy where the catalog is generated directly from version-controlled code
+
+# Test Strategy:
+1. Unit tests for catalog class functionality
+2. Test table registration and discovery
+3. Verify static site generation with sample catalog
+4. Test HTML template rendering
+5. Validate schema visualization accuracy
+6. Test search functionality
+7. Verify documentation generation from code comments
+8. Test integration with MinIO for table location resolution
+9. Test both ParquetTable and DeltaTable definitions
+
+# Subtasks:
+## 5.1. Design and implement core catalog classes [pending]
+### Dependencies: None
+### Description: Create the foundational catalog structures that enable the code-as-a-catalog approach following Neuralink's model
+### Details:
+
+
+## 5.2. Implement table definition decorators and classes [pending]
+### Dependencies: None
+### Description: Create table definition structures with decorators supporting both ParquetTable and DeltaTable with full metadata
+### Details:
+
+
+## 5.3. Create static site generator [pending]
+### Dependencies: None
+### Description: Implement static HTML site generation for catalog documentation and browsing
+### Details:
+
+
+## 5.4. Add Python code snippet generation [pending]
+### Dependencies: None
+### Description: Generate copy-paste Python client code snippets from table definitions
+### Details:
+
+

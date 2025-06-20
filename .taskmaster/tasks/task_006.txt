@@ -1,0 +1,61 @@
+# Task ID: 6
+# Title: Implement Low-Latency 'Surgical Strike' Writer
+# Status: pending
+# Dependencies: 4
+# Priority: high
+# Description: Following the Neuralink three-process architecture, implement the core real-time ingestion mechanism with separate Writer, Compaction, and Vacuum processes using Rust for maximum performance.
+# Details:
+1. Implement the Neuralink three-process architecture in Rust:
+   - **Writer Process:** Continuously appends small files to Delta tables with minimal latency
+   - **Compaction Process:** Scheduled process that merges small files into larger, read-optimized files
+   - **Vacuum Process:** Cleans up stale, unreferenced files beyond retention period
+2. Use AWS DynamoDB as the locking provider for delta-rs to enable safe concurrent operations
+3. Integrate with MinIO-based Delta Lake storage
+4. Implement inter-process communication and coordination
+5. Create intelligent compaction strategies (time-based, size-based)
+6. Add configuration options for tuning each process
+7. This is the primary mechanism for populating the lakehouse with low-latency requirements
+
+# Test Strategy:
+1. Unit tests for each service component
+2. Integration tests for the complete write-compact-vacuum cycle
+3. Performance tests measuring write latency under various loads
+4. Stress tests with high-frequency small writes
+5. Test recovery scenarios after service failures
+6. Measure and validate file size distributions after compaction
+7. Test vacuum retention policies
+8. Test MinIO integration for all three processes
+9. Test DynamoDB locking mechanism
+10. Verify the solution addresses the 'small file problem'
+
+# Subtasks:
+## 6.1. Implement Writer process for MinIO [pending]
+### Dependencies: None
+### Description: Create a Rust-based writer process that continuously appends small files to Delta tables with minimal latency
+### Details:
+
+
+## 6.2. Implement Compaction process with scheduling [pending]
+### Dependencies: None
+### Description: Create a Rust-based compaction process that merges small files into larger, optimized ones
+### Details:
+
+
+## 6.3. Implement Vacuum process for MinIO [pending]
+### Dependencies: None
+### Description: Create a Rust-based vacuum process that cleans up stale files beyond retention period
+### Details:
+
+
+## 6.4. Implement DynamoDB locking integration [pending]
+### Dependencies: None
+### Description: Set up DynamoDB as the locking provider for delta-rs to enable safe concurrent operations
+### Details:
+
+
+## 6.5. Configure process coordination and monitoring [pending]
+### Dependencies: None
+### Description: Implement coordination between the three processes and monitoring to ensure correct operation
+### Details:
+
+

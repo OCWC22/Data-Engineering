@@ -1,0 +1,25 @@
+# Task ID: 10
+# Title: Implement Auto-Generated SQL API via ROAPI
+# Status: pending
+# Dependencies: 5
+# Priority: medium
+# Description: Following the Neuralink model, implement ROAPI (Read-Only API) using Apache DataFusion as the query engine. Auto-generate HTTP APIs that accept SQL queries from the Code as a Catalog table definitions.
+# Details:
+1. Set up ROAPI with Apache DataFusion as the query engine
+2. Configure ROAPI to read from Delta Lake tables on MinIO
+3. Implement automatic API endpoint generation from catalog definitions
+4. Support SQL query execution via HTTP endpoints
+5. Add query optimization and caching capabilities
+6. Implement authentication and rate limiting
+7. Add comprehensive API documentation generation
+8. Ensure zero-maintenance API updates when tables change
+
+# Test Strategy:
+1. Test ROAPI setup and DataFusion integration
+2. Verify automatic endpoint generation from catalog
+3. Test SQL query execution via HTTP APIs
+4. Performance testing with complex queries
+5. Test authentication and security features
+6. Test API documentation generation
+7. Test automatic updates when catalog changes
+8. Load testing with concurrent API requests

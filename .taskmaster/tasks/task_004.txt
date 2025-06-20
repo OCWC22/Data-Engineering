@@ -1,0 +1,219 @@
+# Task ID: 4
+# Title: Implement Core Delta Lake Table Functionality
+# Status: pending
+# Dependencies: 1
+# Priority: high
+# Description: Implement a DeltaTable class that leverages the delta-rs library to provide ACID transactions, schema evolution, and time travel capabilities against MinIO storage. This class will be the foundational block for reliable, transactional data storage.
+# Details:
+1. Integrate the `delta-rs` Python library (`deltalake`) into the project.
+2. Create a high-level `DeltaTable` wrapper class in `src/delta_table.py` to simplify interactions with `delta-rs`.
+3. Configure `delta-rs` to work with the local MinIO storage backend, managing credentials and endpoints through the central `config.py`.
+4. Expose methods for core ACID transactions: `create`, `append`, `overwrite`, and `merge`.
+5. Implement features for schema evolution, allowing schemas to be updated safely.
+6. Implement time travel query capabilities, allowing data to be read from a specific version or timestamp.
+# Test Strategy:
+1. Unit test the `DeltaTable` wrapper class, mocking the underlying `deltalake` calls.
+2. Write integration tests that perform create, read, update, and delete (CRUD) operations against a live MinIO container to verify ACID guarantees.
+3. Develop tests to simulate and verify concurrent write scenarios, ensuring transaction isolation.
+4. Create tests that explicitly evolve a table's schema (e.g., add a column) and verify that old and new data can be read correctly.
+5. Write tests to perform time travel queries and assert that the data returned corresponds to the correct historical version.
+
+# Subtasks:
+## 4.1. Add `deltalake` Dependency and Create Configuration Module [pending]
+### Dependencies: None
+### Description: Add the `deltalake` library to the Poetry project and create a dedicated configuration module to handle storage options for MinIO, ensuring it integrates with the existing `config.py` system.
+### Details:
+**Files to modify:**
+- `neuralake/pyproject.toml`
+- `neuralake/src/config.py`
+
+**Exact steps:**
+1.  Navigate to `neuralake/` directory: `cd neuralake/`
+2.  Add the `deltalake` dependency via Poetry:
+    ```bash
+    poetry add deltalake
+    ```
+3.  **Update `neuralake/src/config.py`** to include Delta Lake specific storage options. Modify the `get_s3_storage_options` function to ensure it's compatible.
+    ```python
+    # In neuralake/src/config.py inside S3Config.get_storage_options
+
+    # At the top of the file, ensure this is imported
+    from typing import Dict
+
+    # Inside the get_storage_options method
+    def get_storage_options(self) -> Dict[str, str]:
+        """Get storage options for data engines (polars, delta-rs, etc.)."""
+        options = {}
+        # ... (existing credential logic) ...
+        if self.endpoint_url:
+            options["AWS_ENDPOINT_URL"] = self.endpoint_url
+        options["AWS_REGION"] = self.region
+        
+        # Add settings required by deltalake for non-AWS S3
+        if self.allow_http:
+            options["AWS_ALLOW_HTTP"] = "true"
+        if self.allow_unsafe_rename:
+            options["AWS_S3_ALLOW_UNSAFE_RENAME"] = "true"
+            
+        return options
+    ```
+
+**Expected output:**
+- `deltalake` and its dependencies (like `pyarrow`) are added to `poetry.lock`.
+- `poetry.lock` and `pyproject.toml` files are updated.
+
+**Error handling:**
+- If Poetry fails, check for version conflicts with `pyarrow`. You may need to align versions.
+- If `poetry add` fails due to system dependencies (e.g., Rust compiler), ensure build tools are installed or use a pre-built wheel if available.
+
+## 4.2. Implement `DeltaTable` Wrapper Class for Core Operations [pending]
+### Dependencies: 4.1
+### Description: Create a `DeltaTable` class in `src/delta_table.py` that provides a simplified, high-level interface for basic read/write operations using Polars DataFrames.
+### Details:
+**Files to create/modify:**
+- **CREATE:** `neuralake/src/delta_table.py`
+- **CREATE:** `neuralake/tests/test_delta_table.py`
+
+**1. Create `neuralake/src/delta_table.py`:**
+```python
+import polars as pl
+from deltalake import DeltaTable as DeltaTableCore, write_deltalake
+from .config import get_s3_storage_options
+
+class DeltaTable:
+    """A high-level wrapper for delta-rs operations using Polars."""
+
+    def __init__(self, table_uri: str):
+        """Initializes the DeltaTable wrapper."""
+        self.uri = table_uri
+        self.storage_options = get_s3_storage_options()
+
+    def write(self, df: pl.DataFrame, mode: str = "append", overwrite_schema: bool = False):
+        """Writes a Polars DataFrame to the Delta table."""
+        write_deltalake(
+            self.uri,
+            df.to_arrow(),
+            mode=mode,
+            storage_options=self.storage_options,
+            overwrite_schema=overwrite_schema
+        )
+
+    def read(self) -> pl.LazyFrame:
+        """Reads the Delta table into a Polars LazyFrame."""
+        return pl.scan_delta(self.uri, storage_options=self.storage_options)
+
+    def history(self, limit: int = 10):
+        """Returns the table's transaction history."""
+        dt = DeltaTableCore(self.uri, storage_options=self.storage_options)
+        return dt.history(limit)
+```
+
+**2. Create `neuralake/tests/test_delta_table.py`:**
+```python
+import pytest
+import polars as pl
+from pathlib import Path
+from neuralake.src.delta_table import DeltaTable
+
+@pytest.fixture
+def sample_df():
+    """Provides a sample Polars DataFrame for tests."""
+    return pl.DataFrame({"id":, "value": ["a", "b"]})
+
+def test_write_and_read(sample_df, tmp_path: Path):
+    """Tests basic overwrite, append, and read operations."""
+    table_path = str(tmp_path / "test_table")
+    delta_table = DeltaTable(table_path)
+    
+    # Test overwrite mode
+    delta_table.write(sample_df, mode="overwrite")
+    result_df = delta_table.read().collect()
+    assert result_df.shape == (2, 2)
+    assert result_df["id"].to_list() ==
+
+    # Test append mode
+    delta_table.write(sample_df, mode="append")
+    result_df_append = delta_table.read().collect()
+    assert result_df_append.shape == (4, 2)
+```
+
+**Commands to test:**
+```bash
+cd neuralake
+# Add pytest if not already present
+poetry add --group dev pytest
+# Run the tests
+poetry run pytest tests/test_delta_table.py -v
+```
+
+## 4.3. Enhance `DeltaTable` with Advanced Features [pending]
+### Dependencies: 4.2
+### Description: Add methods for time travel, schema evolution, and maintenance operations like `vacuum` to the wrapper class.
+### Details:
+**Files to modify:**
+- `neuralake/src/delta_table.py`
+- `neuralake/tests/test_delta_table.py`
+
+**1. Modify `neuralake/src/delta_table.py` to add new methods:**
+```python
+# Add these methods to the DeltaTable class in src/delta_table.py
+
+def read_version(self, version: int) -> pl.LazyFrame:
+    """Reads a specific version of the table."""
+    return pl.scan_delta(self.uri, version=version, storage_options=self.storage_options)
+
+def vacuum(self, retention_hours: int = 168, dry_run: bool = True):
+    """Vacuums old files from the table."""
+    dt = DeltaTableCore(self.uri, storage_options=self.storage_options)
+    dt.vacuum(retention_hours=retention_hours, dry_run=dry_run)
+    
+def update_schema(self, df_with_new_schema: pl.DataFrame):
+    """Evolves the table schema by writing a new DataFrame."""
+    self.write(df_with_new_schema, mode="append", overwrite_schema=True)
+
+```
+
+**2. Add tests to `neuralake/tests/test_delta_table.py`:**
+```python
+# Add these test functions to tests/test_delta_table.py
+
+def test_time_travel(sample_df, tmp_path: Path):
+    table_path = str(tmp_path / "timetravel_table")
+    delta_table = DeltaTable(table_path)
+    
+    # Version 0
+    delta_table.write(sample_df, mode="overwrite")
+    
+    # Version 1
+    delta_table.write(sample_df, mode="append")
+    
+    # Read versions
+    df_v0 = delta_table.read_version(0).collect()
+    df_v1 = delta_table.read_version(1).collect()
+    
+    assert df_v0.shape == (2, 2)
+    assert df_v1.shape == (4, 2)
+    
+    history = delta_table.history()
+    assert len(history) == 2
+
+def test_schema_evolution(sample_df, tmp_path: Path):
+    table_path = str(tmp_path / "schema_evo_table")
+    delta_table = DeltaTable(table_path)
+    delta_table.write(sample_df, mode="overwrite")
+
+    # Add a new column
+    df_new_schema = sample_df.with_columns(pl.lit("new_val").alias("new_col"))
+    delta_table.update_schema(df_new_schema)
+
+    # Verify new schema
+    result = delta_table.read().collect()
+    assert "new_col" in result.columns
+    assert result.height == 4
+```
+
+**Commands to test:**
+```bash
+cd neuralake
+poetry run pytest tests/test_delta_table.py -v
+```

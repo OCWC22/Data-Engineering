@@ -1,0 +1,25 @@
+# Task ID: 11
+# Title: Create Performance Benchmarking Framework
+# Status: pending
+# Dependencies: 7, 10
+# Priority: medium
+# Description: Develop a suite of benchmark tests to measure Polars/DataFusion query performance against scaled datasets on MinIO, comparing against Spark performance for dual-engine validation.
+# Details:
+1. Design benchmark suite with standard query patterns (scan, filter, join, aggregate)
+2. Implement benchmarks using both Polars/DataFusion ('surgical strike') and Spark ('workhorse')
+3. Create scalable test datasets of varying sizes
+4. Measure and compare query performance across engines
+5. Generate performance reports and visualizations
+6. Add automated benchmark execution to CI/CD pipeline
+7. Document performance characteristics and recommendations
+8. Establish performance regression detection
+
+# Test Strategy:
+1. Validate benchmark accuracy and repeatability
+2. Test against datasets of various sizes
+3. Verify performance measurement accuracy
+4. Test both single-node and distributed scenarios
+5. Validate performance report generation
+6. Test CI/CD integration for automated benchmarking
+7. Test regression detection capabilities
+8. Compare results against industry benchmarks
