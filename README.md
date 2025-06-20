@@ -121,7 +121,7 @@ To fully embrace this AI-native workflow, we strongly recommend an IDE integrate
 Our recommended stack of MCPs includes:
 
 1.  **[Task Master](https://github.com/eyaltoledano/claude-task-master):** (ESSENTIAL) The core of our project management system - see tasks, update status, get next steps
-2.  **[Context7](https://github.com/upstash/context7):** (HIGHLY RECOMMENDED) Provides always-up-to-date documentation for any library, directly in your IDE. It's more reliable than any web search.
+2.  **[Context7](https://context.ai/):** (HIGHLY RECOMMENDED) Provides always-up-to-date documentation for any library, directly in your IDE. It's more reliable than any web search.
 3.  **Sequential Thinking:** Turns any base model into a powerful reasoning engine, perfect for planning and problem-solving.
 4.  **Others:** Explore other MCPs like **Supabase** (for database work), or find ones that suit your workflow on **[Smithery](https://smithery.ai/)**, **Glama**, or **Composio**. You can build your own if you don't find the one you want. 
 

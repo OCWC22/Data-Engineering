@@ -11,7 +11,6 @@ python = "^3.11"
 neuralake = "0.0.5"
 polars = {version = "1.9.0", extras = ["aws"]}
 pyarrow = "17.0.0"
-requests = "^2.32.4"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.1.9"
