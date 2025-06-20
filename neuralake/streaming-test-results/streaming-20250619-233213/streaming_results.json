@@ -1,0 +1,31 @@
+{
+  "test_type": "enterprise_streaming_ingestion",
+  "test_duration_seconds": 75,
+  "writers": [
+    {
+      "writer_id": "writer_1",
+      "total_rows_written": 39355,
+      "write_count": 74,
+      "error_count": 0
+    },
+    {
+      "writer_id": "writer_2",
+      "total_rows_written": 38637,
+      "write_count": 74,
+      "error_count": 0
+    },
+    {
+      "writer_id": "writer_3",
+      "total_rows_written": 37921,
+      "write_count": 75,
+      "error_count": 0
+    }
+  ],
+  "final_delta_version": 311,
+  "total_rows": 115913,
+  "concurrent_writers": 3,
+  "compaction_attempted": true,
+  "vacuum_attempted": true,
+  "storage_backend": "minio_s3",
+  "acid_compliance": "verified"
+}

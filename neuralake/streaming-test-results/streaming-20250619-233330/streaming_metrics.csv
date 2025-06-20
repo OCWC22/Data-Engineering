@@ -1,0 +1,4 @@
+writer_id,total_batches,total_rows,error_count,avg_batch_size,throughput_rows_per_sec,test_duration_sec
+writer_1,74,39355,0,531.8243243243244,524.7333333333333,75
+writer_2,74,38637,0,522.1216216216217,515.16,75
+writer_3,75,37921,0,505.61333333333334,505.61333333333334,75

@@ -50,16 +50,34 @@ def get_delta_table_uri(table_name: str, bucket: str = "neuralake-bucket") -> st
 
 
 def set_delta_environment_variables() -> None:
-    """Set Delta Lake environment variables for MinIO compatibility.
+    """Set Delta Lake environment variables for MinIO + LocalStack compatibility.
     
     This ensures that delta-rs can find the S3 credentials and configuration
     even when they're not explicitly passed to each operation.
+    
+    Also configures DynamoDB locking to use LocalStack for local development.
     """
     delta_options = get_delta_storage_options()
     
     for key, value in delta_options.items():
         if key not in os.environ:  # Don't override existing env vars
             os.environ[key] = str(value)
+    
+    # Configure Delta Lake to use LocalStack DynamoDB for locking
+    # Only for local development - remove these in production
+    if not os.getenv("ENVIRONMENT", "local").startswith("local"):
+        return
+        
+    # LocalStack DynamoDB configuration for Delta Lake locking
+    os.environ["DELTALAKE_LOCKING_PROVIDER"] = "dynamodb"
+    os.environ["DELTALAKE_DYNAMODB_TABLE"] = "neuralake_local_lock"
+    os.environ["AWS_ENDPOINT_URL"] = "http://localhost:4566"  # LocalStack
+    
+    # LocalStack credentials for DynamoDB
+    if "AWS_ACCESS_KEY_ID" not in os.environ:
+        os.environ["AWS_ACCESS_KEY_ID"] = "test"
+    if "AWS_SECRET_ACCESS_KEY" not in os.environ:
+        os.environ["AWS_SECRET_ACCESS_KEY"] = "test"
 
 
 def get_delta_write_options(
