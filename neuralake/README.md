@@ -65,6 +65,93 @@ This `neuralake` project contains the core source code and scripts. All document
 
 For the architectural deep-dive, please see **[The Neuralake Data Architecture](../docs/explanation/neuralake.md)** in the main documentation section.
 
+## Code Quality
+
+This project uses [ruff](https://github.com/astral-sh/ruff) for linting and formatting to ensure consistent, high-quality code. Ruff is a fast Python linter and formatter written in Rust, providing the same speed philosophy as our data stack.
+
+### Quick Commands
+
+```bash
+# Run all quality checks
+python3 scripts/lint.py
+
+# Auto-fix issues and format code
+python3 scripts/lint.py --fix
+
+# Only format code (no linting)
+python3 scripts/lint.py --format-only
+
+# Only check (no formatting)
+python3 scripts/lint.py --check-only
+
+# Or use Make targets for convenience
+make help     # Show all available targets
+make check    # Check code quality without fixing
+make lint     # Run linting and formatting
+make format   # Format code only
+```
+
+### Manual Commands
+
+```bash
+# Check for issues
+poetry run ruff check .
+
+# Auto-fix safe issues
+poetry run ruff check . --fix
+
+# Format all Python files
+poetry run ruff format .
+
+# Check formatting without changing files
+poetry run ruff format --check .
+```
+
+### Configuration
+
+Ruff configuration is in `pyproject.toml` under `[tool.ruff]`. Key settings:
+
+- **Line length:** 88 characters (Black default)
+- **Target Python:** 3.11+
+- **Enabled rules:** pycodestyle, pyflakes, isort, flake8-bugbear, and more
+- **Import sorting:** Groups imports with neuralake as first-party
+
+### Pre-commit Workflow
+
+Before committing code:
+
+1. Run `python3 scripts/lint.py --fix` to auto-fix issues
+2. Review and commit the changes
+3. Ensure `python3 scripts/lint.py` passes with no errors
+
+### Troubleshooting
+
+**Import errors:**
+```bash
+# Ensure all dependencies are installed
+poetry install
+```
+
+**Syntax errors:**
+- Fix Python syntax issues first before running ruff
+
+**Persistent formatting issues:**
+```bash
+# Check specific file
+poetry run ruff check src/my_tables.py --verbose
+
+# Get help on specific rule
+poetry run ruff rule F401
+```
+
+### IDE Integration
+
+**VS Code:**
+Install the "Ruff" extension for real-time linting and formatting.
+
+**PyCharm:**
+Configure ruff as external tool or use the ruff plugin.
+
 ## Getting Started
 
 Follow these steps to set up and run the project using the modern toolchain.

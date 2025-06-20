@@ -1,28 +1,32 @@
-import os
-import sys
 from pathlib import Path
+import sys
 
-# --- Configuration Setup ---
-# Add the project root to the Python path to allow absolute imports of the 'neuralake' package.
-# This is a common pattern for running scripts within a package structure.
-PROJ_ROOT = Path(__file__).parent.parent
-sys.path.append(str(PROJ_ROOT))
 
-# By default, the config will load the 'local' environment, which is
-# pre-configured to connect to the local MinIO S3 instance.
-# You can switch to a different environment (e.g., production) by setting
-# the 'NEURALAKE_ENV' environment variable before running this script.
-# For example:
-# NEURALAKE_ENV=production python -m neuralake.query_data
-from my_catalog import DemoCatalog
-from config import is_production, get_config
+def setup_path():
+    """Setup the Python path for local imports."""
+    proj_root = Path(__file__).parent.parent
+    if str(proj_root) not in sys.path:
+        sys.path.append(str(proj_root))
+
 
 def main():
     """
     Demonstrates how to use the neuralake catalog to query a table.
     The underlying data source (local S3, production S3) is determined
     by the configuration loaded via the NEURALAKE_ENV environment variable.
+
+    By default, the config will load the 'local' environment, which is
+    pre-configured to connect to the local MinIO S3 instance.
+    You can switch to a different environment (e.g., production) by setting
+    the 'NEURALAKE_ENV' environment variable before running this script.
+    For example:
+    NEURALAKE_ENV=production python -m neuralake.query_data
     """
+    setup_path()
+
+    from config import get_config, is_production
+    from my_catalog import DemoCatalog
+
     config = get_config()
     env = "Production" if is_production() else "Local"
     print(f"--- Querying 'part' table from S3 ({env} Environment) ---")
@@ -40,4 +44,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main() 
+    main()

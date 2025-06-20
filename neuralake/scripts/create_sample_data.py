@@ -1,9 +1,11 @@
+from pathlib import Path
+
 import polars as pl
-import os
 
 # Create a directory for data if it doesn't exist
-if not os.path.exists("data"):
-    os.makedirs("data")
+data_dir = Path("data")
+if not data_dir.exists():
+    data_dir.mkdir(parents=True, exist_ok=True)
 
 # Create a sample DataFrame
 data = {
@@ -17,4 +19,4 @@ df = pl.DataFrame(data)
 # Write to a Parquet file
 df.write_parquet("data/parts.parquet")
 
-print("Sample data created at data/parts.parquet") 
+print("Sample data created at data/parts.parquet")
