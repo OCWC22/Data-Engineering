@@ -4,6 +4,12 @@ This directory contains a working blueprint for a modern data platform, inspired
 
 This is not just a demo; it's a starter kit for building data systems where the entire data landscape is defined, versioned, and queried as code, powered by high-performance, Rust-based tools like Polars and DataFusion.
 
+## AI-Native Development Philosophy
+
+This project follows a sophisticated, AI-native development methodology designed for clarity, context, and effective collaboration between human and AI developers. The full philosophy, including our core workflow, documentation standards, and recommended tooling, is detailed in the root of the repository.
+
+**Please read the [AI-Native Development Philosophy](../README.md#ai-native-development-philosophy) in the main `README.md` to understand our way of working.**
+
 ## Why Poetry & UV? A Modern Python Stack
 
 The tooling for a project should reflect its philosophy. A high-performance, Rust-based data stack deserves a high-performance, modern Python development environment. That's why this project uses **Poetry** for dependency management and **UV** for installation.
@@ -40,9 +46,8 @@ This blueprint demonstrates the core tenets of the Neuralake philosophy in a way
 
 ## Repository Structure
 
-*   `docs/`: Contains all documentation.
-    *   `explanation/ONBOARDING.md`: 🧠 The deep-dive document. **Start here for the 'why'.**
-    *   `reference/changelogs/`: Detailed changelogs for development iterations.
+This `neuralake` project contains the core source code and scripts. All documentation has been centralized in the root `docs/` directory to provide a unified knowledge base for the entire repository.
+
 *   `src/`: Core Python source code.
     *   `query_data.py`: 🚀 The main entry point for data querying. **Run this to see it work.**
     *   `my_tables.py`: 宣言 Where data sources are declared (from files, functions, etc.).
@@ -50,13 +55,15 @@ This blueprint demonstrates the core tenets of the Neuralake philosophy in a way
     *   `config.py`: ⚙️ Manages environment-specific configurations.
 *   `scripts/`: Utility and operational scripts.
     *   `production_verification.py`: ✅ Script to verify the platform in different environments.
-    *   `create_sample_data.py`: 🏗️ Utility to generate sample Parquet data for local testing.
+    *   `create_sample_data.py`: 🏗️ Utility to generate sample Parquet data. It's configurable, allowing you to create large datasets for testing. Run `poetry run python scripts/create_sample_data.py --help` for options.
     *   `setup_minio.sh`: 🐳 Script to set up a local MinIO S3-compatible server using Docker.
-    *   `upload_sample_data_to_minio.py`: 📤 Script to upload sample data to the local MinIO server.
+    *   `upload_sample_data_to_minio.py`: 📤 Script to upload the generated sample data to the local MinIO server.
 *   `pyproject.toml`: 🔧 The core project configuration file for Poetry.
 *   `poetry.lock`: 🔒 Lockfile for deterministic, reproducible builds.
 *   `docker-compose.yml`: 🐳 Defines the local MinIO service for S3 emulation.
 *   `README.md`: This file.
+
+For the architectural deep-dive, please see **[The Neuralake Data Architecture](../docs/explanation/neuralake.md)** in the main documentation section.
 
 ## Getting Started
 
@@ -79,23 +86,37 @@ Follow these steps to set up and run the project using the modern toolchain.
     ```
 
 2.  **Set up Local S3 Environment (MinIO)**
-    This project uses a local MinIO server to simulate S3.
+    This project uses a local MinIO server to simulate S3. First, start the server and create the necessary bucket:
     ```bash
     # Start MinIO and create the bucket
     bash scripts/setup_minio.sh
+    ```
+    Ensure Docker is running before executing this command.
 
-    # Upload sample data
+3.  **Generate Sample Data**
+    Next, generate the sample `parts.parquet` file. The script defaults to creating 100,000 rows, but it is highly configurable.
+    ```bash
+    # Generate the data with default settings
+    poetry run python scripts/create_sample_data.py
+
+    # For more options and to create larger datasets, see the help message
+    poetry run python scripts/create_sample_data.py --help
+    ```
+
+4.  **Upload the Data**
+    Load the newly created Parquet file into your local MinIO server.
+    ```bash
+    # Upload the generated 'parts.parquet' file
     poetry run python scripts/upload_sample_data_to_minio.py
     ```
-    Ensure Docker is running before executing `setup_minio.sh`.
 
-3.  **Install Dependencies**
+5.  **Install Dependencies**
     From this `neuralake` directory, let Poetry work its magic.
     ```bash
     poetry install
     ```
 
-4.  **Configure Environment (Optional)**
+6.  **Configure Environment (Optional)**
     The system defaults to the `local` environment. To explicitly set it:
     ```bash
     export NEURALAKE_ENV=local
@@ -104,13 +125,13 @@ Follow these steps to set up and run the project using the modern toolchain.
     ```
     Refer to `src/config.py` for details on environment variables used.
 
-5.  **Run the Query Script**
+7.  **Run the Query Script**
     Execute the main script using `poetry run`, which ensures it runs inside the project's managed environment.
     ```bash
     poetry run python src/query_data.py
     ```
 
-6.  **Run Verification Tests**
+8.  **Run Verification Tests**
     To ensure everything is configured and working correctly:
     ```bash
     poetry run python scripts/production_verification.py

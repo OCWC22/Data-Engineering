@@ -6,17 +6,67 @@ The core philosophy is building **Simple Systems for Complex Data**, centered on
 1.  **Code-as-Catalog:** The entire data landscape is defined, versioned, and queried as code. No GUIs, no separate services, no stale documentation. The code is the single source of truth.
 2.  **Lightweight, Performant Tooling:** The stack is built on a foundation of Rust-based libraries (`polars`, `datafusion`) for maximum performance and a modern Python toolchain (`poetry`, `uv`) for a superior developer experience.
 
-## Project Structure Overview
+## Project Structure & Documentation
 
-This repository is organized as follows:
+This repository follows a structured layout to separate concerns and make the project, especially its documentation, easy to navigate for both humans and AI agents.
 
+-   `docs/`: The central hub for all documentation. It follows a framework inspired by [Diátaxis](https://diataxis.fr/), organized into:
+    -   `explanation/`: High-level concepts, architectural deep-dives, and case studies (e.g., `neuralake.md`).
+    -   `how-to/`: Practical, step-by-step guides for specific tasks (e.g., `upgrade_dev_to_prod.md`).
+    -   `tutorials/`: Learning-oriented, hands-on walkthroughs.
+    -   `reference/`: Technical descriptions, API documentation, and changelogs.
 -   `neuralake/`: Contains the core Neuralake demonstration project.
-    -   `src/`: Python source code for the data platform (e.g., `my_tables.py`, `my_catalog.py`, `query_data.py`, `config.py`).
-    -   `scripts/`: Utility and verification scripts (e.g., `production_verification.py`, `create_sample_data.py`).
-    -   `docs/`: Documentation specific to the Neuralake component, including explanations, how-to guides, and API references.
+    -   `src/`: Python source code for the data platform (`my_tables.py`, `my_catalog.py`, `query_data.py`, `config.py`).
+    -   `scripts/`: Utility and verification scripts (`production_verification.py`, `create_sample_data.py`).
     -   `pyproject.toml` & `poetry.lock`: Poetry configuration for managing dependencies.
--   `docs/`: (Currently, primary documentation is within `neuralake/docs/`)
 -   `README.md`: This file, providing an overview of the entire playground.
+
+## An AI-Native Development Philosophy
+
+This project is more than just code; it's a living blueprint for a new way of building software. It's an **AI-native workflow** designed from the ground up to be understood, maintained, and enhanced by both human developers and AI coding agents.
+
+Our methodology is built on four pillars: **Communication, Documentation, Organization, and Architecture.** The goal is to eliminate ambiguity and provide deep context, treating our AI counterparts like brilliant but inexperienced interns who thrive on clarity.
+
+### The Heart of the Project: The `docs/` Folder
+
+The `docs/` directory is the soul of this repository. It's where the "why" behind every decision lives. Before a single line of code is written for a new feature, its purpose, design, trade-offs, and implementation strategy are documented here. This ensures that any developer—human or AI—can onboard quickly and contribute meaningfully without getting lost.
+
+### The Core Workflow: A Cycle of Deliberate Action
+
+We follow a structured, iterative process designed to ensure that every change is well-planned, researched, and documented.
+
+1.  **Plan with Taskmaster:** Every new feature begins in **[Taskmaster](https://github.com/eyaltoledano/claude-task-master)**. We create a Product Requirements Document (`.taskmaster/docs/prd.md`) and use Taskmaster to generate a detailed, structured plan. This is our single source of truth for what needs to be built.
+
+2.  **Deep Research & Refinement:** With a plan in hand, we turn to external, specialized AI tools for deep research. We use reasoning models (like Claude 4 Sonnet Thinking or Gemini 2.5 Pro with Extended Thinking in Google AI Studio, o3) paired with research tools that have full web and social access (like Perplexity) to validate our approach against the latest best practices, library documentation, and security advisories. The findings from this research are used to refine the plan. 
+
+3.  **Implement:** With a research-backed plan, we begin coding.
+
+4.  **Test:** We rigorously verify that the implementation works as expected.
+
+5.  **Document with Changelogs:** Upon completion, we create a new, permanent record in the `docs/reference/changelogs/` directory. This is not just a list of changes; it's a narrative that explains the "why," the trade-offs, and the reasoning behind the implementation, providing invaluable context for future work.
+
+### Changelog as Catalog: The Project's Memory
+
+Our changelog is our institutional memory. Each entry is a standalone file, making it version-controlled, auditable, and easily discoverable.
+
+-   **Naming Convention:** We follow a strict format: `XX-YYYY-MM-DD-brief-description.md`, where `XX` is a zero-padded sequential number. This provides chronological order and versioning at a glance.
+-   **Content Structure:** Each changelog provides deep context, including the Taskmaster task ID, a summary of changes, the reasoning behind key decisions, and any trade-offs made. This is critical for preventing confusion and enabling effective collaboration with AI agents.
+-   **Example in Practice:** The `neuralake` library has no public API documentation. We had to reverse-engineer it. Our findings and the script used to generate the docs are recorded in changelog `05-2025-06-19-api-docs-generation.md`, preserving that knowledge forever.
+
+### Recommended Toolchain: The MCP-Powered IDE
+
+To fully embrace this AI-native workflow, we strongly recommend an IDE integrated with **MCP (Model Control Protocol)** servers. This turns your editor into a powerful, context-aware development environment.
+
+Our recommended stack of MCPs includes:
+
+1.  **[Context7](https://context.ai/):** (HIGHLY RECOMMENDED) Provides always-up-to-date documentation for any library, directly in your IDE. It's more reliable than any web search.
+2.  **Sequential Thinking:** Turns any base model into a powerful reasoning engine, perfect for planning and problem-solving.
+3.  **Taskmaster:** The core of our project management, allowing you to interact with the project plan using natural language.
+4.  **Others:** Explore other MCPs like **Supabase** (for database work), or find ones that suit your workflow on **[Smithery](https://smithery.ai/)**, **Glama**, or **Composio**. You can build your own if you don't find the one you want. 
+
+I recommend using Smithery because it's the easiest way to setup external MCPs to your IDE. Cursor, Windsurf, Trae have started offering toggle MCP servers, explore those first.
+
+For setup instructions, see the **[How to Set Up Taskmaster Guide](./docs/how-to/setup-taskmaster.md)**.
 
 ## The Neuralake Demo: A Code-First Data Platform
 
@@ -108,10 +158,24 @@ shape: (5, 4)
 ```
 The `production_verification.py` script will output test results.
 
+## Code Quality
+
+This project uses `ruff` for code linting and formatting. The configuration can be found in `neuralake/ruff.toml`.
+
+To check for issues and apply automatic fixes, run the following command from the `neuralake` directory:
+```bash
+poetry run ruff check --fix .
+```
+
+To simply check for issues without applying fixes, run:
+```bash
+poetry run ruff check .
+```
+
 ## Explore Further
 
 This playground is your starting point.
-*   **Dive Deeper:** Read the detailed architectural breakdown in **[neuralake/docs/explanation/ONBOARDING.md](./neuralake/docs/explanation/ONBOARDING.md)**.
+*   **Dive Deeper:** Read the detailed architectural breakdown in **[docs/explanation/neuralake.md](./docs/explanation/neuralake.md)**.
 *   **Experiment:** Add a new data source in `neuralake/src/my_tables.py` (e.g., from a CSV or a live API).
 *   **Build:** Write a new query in `neuralake/src/query_data.py` to perform more complex aggregations or transformations.
 *   **Understand Configuration:** Examine `neuralake/src/config.py` to see how environment-specific settings are managed.
