@@ -12,26 +12,35 @@ https://www.youtube.com/watch?v=rVSb0u9OTtM&t=763s
 
 **Want to see EVERYTHING we're building?** 
 
-👉 **Go to `.taskmaster/tasks/tasks.json`** - This is our comprehensive project roadmap with 17 detailed tasks
+👉 **Go to `.taskmaster/tasks/tasks.json`** - This is our comprehensive project roadmap with detailed tasks
 
-👉 **Or use TaskMaster CLI** to explore tasks interactively:
+👉 **Or use TaskMaster via MCP tools** if you have the MCP server set up in your IDE (Cursor/Windsurf):
 ```bash
-# See all tasks
-poetry run taskmaster get-tasks --with-subtasks
+# See all tasks (via MCP tools in IDE)
+# get_tasks tool with withSubtasks=true
 
 # See next task to work on  
-poetry run taskmaster next-task
+# next_task tool
 
 # Get specific task details
-poetry run taskmaster get-task --id 2
+# get_task tool with id parameter
 ```
 
-### Current Project Status (17 Tasks Total):
-- ✅ **Task 1**: S3/MinIO Foundation (COMPLETE)
-- 🚧 **Tasks 2-7**: Foundational improvements (Code quality, CI/CD, Delta Lake, Code-as-Catalog, Low-latency writer, Testing)
-- 📋 **Tasks 8-17**: Blueprint expansion (Kafka, ROAPI, Performance benchmarking, Spark, Real-time pipelines, etc.)
+### Current Project Status (17+ Tasks Total):
+- ✅ **Task 1**: S3/MinIO Foundation (COMPLETE - 4/4 subtasks)
+- ✅ **Task 2**: Code Quality Tooling (COMPLETE - 4/4 subtasks) 
+- ✅ **Task 3**: CI/CD Pipeline (COMPLETE - 6/6 subtasks)
+- ✅ **Task 4**: Delta Lake Implementation (COMPLETE - 4/4 subtasks)
+- ✅ **Task 5**: Code-as-Catalog System (COMPLETE - 5/5 subtasks)
+- 🚧 **Task 6**: "Surgical Strike" Writer (**Foundation Complete, Real Implementation Needed**)
+- ⏳ **Tasks 7-17**: Testing framework, Kafka streams, ROAPI, Spark integration, etc. (pending Task 6)
 
-**⚠️ IMPORTANT:** This isn't just a demo - we're building a **complete production data engineering platform** following Neuralink's exact architectural patterns. Each task has comprehensive subtasks with specific code, configurations, and implementation details.
+**⚠️ IMPORTANT:** This isn't just a demo - we're building a **complete production data engineering platform** following Neuralink's exact architectural patterns. 
+
+**Current Progress: 5/17 Tasks Complete (29.4%)**
+- **Tasks 1-5**: Fully implemented with comprehensive subtasks, tests, and production-ready code
+- **Task 6**: Infrastructure foundation complete (compatible dependencies, TDD test framework, project structure) but **core implementation still needed**
+- **Tasks 7-17**: Ready to start once Task 6 real implementation is complete
 
 ## The Core Philosophy
 
@@ -144,16 +153,18 @@ The `neuralake/` directory contains a working demonstration that brings the "Cod
 
 ## Quick Start
 
-Follow these steps to get the demo running in minutes.
+Follow these steps to get the **working components** running. Note that Docker is **required** for the S3 simulation (MinIO).
 
-### 1. Prerequisites: Poetry & UV
+### 1. Prerequisites: Poetry, UV & Docker Desktop
 
-This project uses a modern Python toolchain for robust dependency management and blazing-fast installation speed.
+This project uses a modern Python toolchain and requires Docker for local S3 simulation.
 
-*   **Poetry:** A powerful dependency and packaging manager.
-*   **UV:** An extremely fast package installer, written in Rust, used by Poetry to accelerate setup.
+**Required:**
+- **Docker Desktop**: Must be running for MinIO (S3 simulation)
+- **Poetry**: Dependency and packaging manager
+- **UV**: Fast package installer (used by Poetry)
 
-If you don't have them, install them with `pipx` (recommended):
+If you don't have them, install with `pipx` (recommended):
 ```bash
 # Install pipx if you don't have it
 python3 -m pip install --user pipx
@@ -162,46 +173,57 @@ python3 -m pipx ensurepath
 # Install the tools
 pipx install poetry
 pipx install uv
+
+# Ensure Docker Desktop is installed and running
+# Download from: https://www.docker.com/products/docker-desktop/
 ```
 
 ### 2. Configure Poetry to use UV
 
-Tell Poetry to use the UV installer. You only need to do this once.
+Tell Poetry to use the UV installer (one-time setup):
 ```bash
 poetry config virtualenvs.installer uv
 ```
 
-### 3. Install & Run
+### 3. Start MinIO (Required for S3 Simulation)
 
-Clone the repository and let Poetry handle the rest.
+**IMPORTANT**: Start Docker Desktop first, then:
+```bash
+# Clone and navigate to repository
+git clone <your-repo-url>
+cd <your-repo-directory>
+
+# Start MinIO S3 server and create bucket
+cd neuralake
+bash setup_minio.sh
+```
+
+### 4. Install Dependencies & Test
 
 ```bash
-# Clone the repository
-git clone <your-repo-url> # Replace with your repository URL
-cd <your-repo-directory>  # Replace with your repository directory
-
-# Navigate to the neuralake project directory
-cd neuralake
-
-# Install dependencies into a new virtual environment
+# Install Python dependencies
 poetry install
 
-# Set the environment (optional, defaults to 'local')
-# export NEURALAKE_ENV=local # or 'production' for production settings
+# Generate sample data
+poetry run python scripts/create_sample_data.py
 
-# Run the query script to see it query data from the local S3 (MinIO) server
+# Upload data to MinIO
+poetry run python scripts/upload_sample_data_to_minio.py
+
+# Test the query system (requires MinIO running)
 poetry run python src/query_data.py
 
-# Run the verification tests
+# Run comprehensive verification tests
 poetry run python scripts/production_verification.py
 ```
 
-### Expected Output (from `query_data.py`)
+### Expected Output
 
-You will see a Polars DataFrame printed to the console, showing the result of querying the `parts.parquet` file stored in the local MinIO S3 bucket.
+If everything is working, `poetry run python src/query_data.py` will show:
 
 ```
---- Querying 'part' table from S3 ---
+--- Querying 'part' table from S3 (Local Environment) ---
+--- S3 Endpoint: http://localhost:9000 ---
 
 Query successful! Fetched data from S3:
 shape: (5, 4)
@@ -217,7 +239,22 @@ shape: (5, 4)
 │ 5         ┆ Part#5   ┆ Brand#2 ┆ 50.0          │
 └───────────┴──────────┴─────────┴───────────────┘
 ```
-The `production_verification.py` script will output test results.
+
+### Troubleshooting
+
+**S3 Connection Errors**: Ensure Docker Desktop is running and MinIO was started successfully:
+```bash
+# Check if Docker is running
+docker ps
+
+# Check if MinIO container is running
+docker ps | grep minio
+
+# Restart MinIO if needed
+bash setup_minio.sh
+```
+
+**"Cannot connect to Docker daemon"**: Start Docker Desktop application first.
 
 ## Code Quality
 
@@ -233,12 +270,78 @@ To simply check for issues without applying fixes, run:
 poetry run ruff check .
 ```
 
+## 🚀 What's Next: Current Development Priorities
+
+### **Immediate Priority: Complete Task 6 - Rust "Surgical Strike" Writer**
+
+**Status**: 🚧 Foundation Complete, **Core Implementation Gap**
+
+**✅ FOUNDATION COMPLETE**:
+- **Dependencies Resolved**: All Cargo.toml dependencies compatible and locked (deltalake 0.26.2, AWS SDK, tokio 1.45.1)
+- **Project Structure**: Complete `rust-writer/` directory with proper organization
+- **TDD Framework**: Comprehensive test suite ready (`tests/surgical_strike.rs` with all test cases)
+- **Configuration System**: Complete config structures for all three processes
+
+**❌ IMPLEMENTATION GAP - What We Need**:
+1. **Real Writer Process** - Replace placeholder `Writer` struct with actual:
+   - DynamoDB locking integration for concurrent safety
+   - Delta Lake write operations via MinIO
+   - 250ms latency SLA monitoring and retry logic
+   
+2. **Real Compaction Process** - Replace placeholder `Compactor` with:
+   - Delta Lake OPTIMIZE operations to merge small files
+   - Intelligent scheduling (time-based, size-based triggers)
+   - File size distribution monitoring
+   
+3. **Real Vacuum Process** - Replace placeholder `Vacuum` with:
+   - Retention policy enforcement
+   - Unreferenced file cleanup
+   - Safe deletion with dependency checks
+
+**Current Blocker**: Task 6.1 says "Set up Rust project" but that's done. We need **actual Rust implementation** of the three-process architecture.
+
+**Next Immediate Steps**:
+1. **Update Task 6** to reflect foundation complete, add implementation subtasks
+2. **Start with Writer Process** - Most critical for the pipeline
+3. **Enable TDD Tests** - Remove `#[ignore]` as real code replaces placeholders
+4. **Integration Testing** - Connect to existing MinIO Delta Lake tables
+
+### **Subsequent Priorities (Tasks 7+)**:
+- **Task 7**: Testing Framework Integration
+- **Task 8**: Kafka Streaming Integration  
+- **Task 9**: ROAPI Auto-Generated APIs
+- **Task 10**: Performance Benchmarking (Rust vs Spark)
+
+**🔧 To Contribute**: The most impactful work right now is completing the Rust writer implementation in `neuralake/rust-writer/`. All tests and infrastructure are ready for TDD development.
+
 ## Explore Further
 
-This playground is your starting point.
-*   **🎯 MOST IMPORTANT: Check `.taskmaster/tasks/tasks.json`** to see our complete 17-task roadmap
-*   **📋 Use TaskMaster:** Install the MCP and interact with tasks via natural language
-*   **Dive Deeper:** Read the detailed architectural breakdown in **[docs/explanation/neuralake.md](./docs/explanation/neuralake.md)**.
-*   **Experiment:** Add a new data source in `neuralake/src/my_tables.py` (e.g., from a CSV or a live API).
-*   **Build:** Write a new query in `neuralake/src/query_data.py` to perform more complex aggregations or transformations.
-*   **Understand Configuration:** Examine `neuralake/src/config.py` to see how environment-specific settings are managed.
+**Current Working Components:**
+*   **🎯 MOST IMPORTANT: Check `.taskmaster/tasks/tasks.json`** to see our complete roadmap with detailed status
+*   **📋 Use TaskMaster via MCP:** If you have the MCP server set up in your IDE, you can interact with tasks via natural language
+*   **🏗️ Working Foundation (Tasks 1-5):** Complete S3/MinIO integration, Delta Lake, Code-as-Catalog system, CI/CD pipeline
+*   **📚 Browse Documentation:** Read the detailed architectural breakdown in **[docs/explanation/neuralake.md](./docs/explanation/neuralake.md)**
+*   **🔍 View Changelogs:** Check **[docs/reference/changelogs/](./docs/reference/changelogs/)** to see exactly what's been built
+
+**Development Opportunities:**
+*   **🦀 HIGHEST PRIORITY: Complete Rust Writer Implementation**
+    - Replace placeholder structs in `neuralake/rust-writer/src/` with real functionality
+    - Start with `writer.rs` (most critical for pipeline)
+    - Enable TDD tests incrementally as implementations are added
+    - **Immediate Impact**: Unlocks all remaining 11 tasks in the roadmap
+*   **🧪 Experiment with Working System:** Add new data sources in `neuralake/src/my_tables.py` (e.g., CSV, live API)
+*   **📊 Build on Foundation:** Write complex queries in `neuralake/src/query_data.py` for advanced aggregations
+*   **⚙️ Understand Architecture:** Examine `neuralake/src/config.py` for environment-specific configuration patterns
+*   **🐳 Production Deployment:** Follow **[docs/how-to/upgrade_dev_to_prod.md](./docs/how-to/upgrade_dev_to_prod.md)** to deploy to real AWS
+
+**Quick Tests to Verify Setup:**
+```bash
+# Basic functionality test
+cd neuralake && poetry run python src/query_data.py
+
+# Full verification suite  
+poetry run python scripts/production_verification.py
+
+# Check Rust writer compilation
+cd rust-writer && cargo check
+```

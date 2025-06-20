@@ -55,9 +55,9 @@ This `neuralake` project contains the core source code and scripts. All document
     *   `config.py`: ⚙️ Manages environment-specific configurations.
 *   `scripts/`: Utility and operational scripts.
     *   `production_verification.py`: ✅ Script to verify the platform in different environments.
-    *   `create_sample_data.py`: 🏗️ Utility to generate sample Parquet data. It's configurable, allowing you to create large datasets for testing. Run `poetry run python scripts/create_sample_data.py --help` for options.
-    *   `setup_minio.sh`: 🐳 Script to set up a local MinIO S3-compatible server using Docker.
+    *   `create_sample_data.py`: 🏗️ Utility to generate sample Parquet data (creates simple 5-row dataset).
     *   `upload_sample_data_to_minio.py`: 📤 Script to upload the generated sample data to the local MinIO server.
+*   `setup_minio.sh`: 🐳 Script to set up a local MinIO S3-compatible server using Docker.
 *   `pyproject.toml`: 🔧 The core project configuration file for Poetry.
 *   `poetry.lock`: 🔒 Lockfile for deterministic, reproducible builds.
 *   `docker-compose.yml`: 🐳 Defines the local MinIO service for S3 emulation.
@@ -173,21 +173,24 @@ Follow these steps to set up and run the project using the modern toolchain.
     ```
 
 2.  **Set up Local S3 Environment (MinIO)**
-    This project uses a local MinIO server to simulate S3. First, start the server and create the necessary bucket:
+    This project uses a local MinIO server to simulate S3. **Ensure Docker Desktop is running first**, then start the server and create the necessary bucket:
     ```bash
     # Start MinIO and create the bucket
-    bash scripts/setup_minio.sh
+    bash setup_minio.sh
     ```
-    Ensure Docker is running before executing this command.
+    **Requirements:**
+    - Docker Desktop must be running
+    - If you get "Cannot connect to the Docker daemon" error, start Docker Desktop first
+    
+    **Troubleshooting:**
+    - If the script fails, ensure Docker is running: `docker ps` should work
+    - The MinIO web interface will be available at http://localhost:9001 (admin/password)
 
 3.  **Generate Sample Data**
-    Next, generate the sample `parts.parquet` file. The script defaults to creating 100,000 rows, but it is highly configurable.
+    Next, generate the sample `parts.parquet` file. This creates a simple 5-row dataset for testing.
     ```bash
-    # Generate the data with default settings
+    # Generate the data (creates a simple 5-row sample)
     poetry run python scripts/create_sample_data.py
-
-    # For more options and to create larger datasets, see the help message
-    poetry run python scripts/create_sample_data.py --help
     ```
 
 4.  **Upload the Data**
@@ -217,6 +220,7 @@ Follow these steps to set up and run the project using the modern toolchain.
     ```bash
     poetry run python src/query_data.py
     ```
+    **Note:** This requires MinIO to be running (step 2). If you get S3 connection errors, ensure Docker is running and MinIO was started successfully.
 
 8.  **Run Verification Tests**
     To ensure everything is configured and working correctly:
