@@ -10,10 +10,11 @@ import pyarrow as pa
 import polars as pl
 from neuralake.core import Catalog
 import logging
+import os # Added for setting environment variables
 from typing import Optional, Dict
 
 # Import our production-ready configuration
-from config import get_config, get_s3_storage_options, is_production
+from config import get_config, get_s3_storage_options, is_production, Environment # Added Environment
 
 # Setup logging for this module
 logger = logging.getLogger("neuralake.tables")
@@ -49,10 +50,22 @@ def create_part_table() -> ParquetTable:
     uri = f"s3://{config.default_bucket}/parts.parquet"
     storage_options = get_s3_storage_options()
 
-    logger.info(f"Creating ParquetTable for 'part' at URI: {uri}")
+    # Ensure default MinIO credentials are set for local development if not already present
+    # These will be picked up by Polars/Arrow
+    if config.environment == Environment.LOCAL: # Assuming Environment enum is accessible or use string 'local'
+        if "AWS_ACCESS_KEY_ID" not in storage_options:
+            storage_options["AWS_ACCESS_KEY_ID"] = "minioadmin"
+        if "AWS_SECRET_ACCESS_KEY" not in storage_options:
+            storage_options["AWS_SECRET_ACCESS_KEY"] = "minioadmin"
+
+    # Set S3 options (including credentials) as environment variables
+    for key, value in storage_options.items():
+        os.environ[key] = str(value) # Ensure value is string
+
+    logger.info(f"Creating ParquetTable for 'part' at URI: {uri}. S3 Env Vars Set: {', '.join(storage_options.keys())}")
 
     part_table = ParquetTable(
-    name="part",
+        name="part",
         uri=uri,
         partitioning=partitioning,
         description="Parts information with production-ready configuration."
