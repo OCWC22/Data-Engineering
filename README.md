@@ -42,11 +42,61 @@ https://www.youtube.com/watch?v=rVSb0u9OTtM&t=763s
 - **Task 6**: Infrastructure foundation complete (compatible dependencies, TDD test framework, project structure) but **core implementation still needed**
 - **Tasks 7-17**: Ready to start once Task 6 real implementation is complete
 
-## The Core Philosophy
+## 📚 **Learning & Onboarding: Start Here for Education**
 
-The core philosophy is building **Simple Systems for Complex Data**, centered on two key ideas:
-1.  **Code-as-Catalog:** The entire data landscape is defined, versioned, and queried as code. No GUIs, no separate services, no stale documentation. The code is the single source of truth.
-2.  **Lightweight, Performant Tooling:** The stack is built on a foundation of Rust-based libraries (`polars`, `datafusion`) for maximum performance and a modern Python toolchain (`poetry`, `uv`) for a superior developer experience.
+### **🎓 New Engineer Learning Path (3 Weeks)**
+
+**Week 1: Understanding the Architecture**
+1. **Read Core Concepts**: [`docs/explanation/concepts/catalog-architecture-fundamentals.md`](./docs/explanation/concepts/catalog-architecture-fundamentals.md) - **START HERE**
+   - Hybrid architecture philosophy 
+   - When to use function vs Delta vs Parquet tables
+   - Unified query interface with Polars LazyFrames
+   - Production scaling patterns
+2. **High-Level Philosophy**: [`docs/explanation/neuralake.md`](./docs/explanation/neuralake.md)
+3. **Environment Setup**: [`docs/tutorials/01-foundations-lakehouse-ingestion.md`](./docs/tutorials/01-foundations-lakehouse-ingestion.md)
+
+**Week 2: Hands-On Implementation**
+1. **Hands-On Tutorial**: [`docs/tutorials/02-catalog-system-walkthrough.md`](./docs/tutorials/02-catalog-system-walkthrough.md) - **Build Your First Tables**
+   - Create function tables with `@table` decorator
+   - Set up Delta tables for ACID transactions
+   - Join data across different table types
+   - Generate automatic documentation
+2. **SSG Deep Dive**: [`docs/explanation/concepts/code-as-catalog-ssg.md`](./docs/explanation/concepts/code-as-catalog-ssg.md)
+
+**Week 3: Production & Real-World Context**
+1. **Real-World Decisions**: [`docs/explanation/case-studies/01-debugging-neuralake-v0.0.5.md`](./docs/explanation/case-studies/01-debugging-neuralake-v0.0.5.md)
+2. **Production Deployment**: [`docs/how-to/upgrade_dev_to_prod.md`](./docs/how-to/upgrade_dev_to_prod.md)
+3. **Implement Real Tables**: Apply learnings to your team's actual data
+
+### **🎯 Quick Learning Outcomes**
+
+After completing the learning path, you'll understand:
+- **Why we built a hybrid catalog architecture** instead of pure external dependency
+- **How the `@table` decorator and static table registration work together**  
+- **When to use function tables vs Delta tables vs Parquet tables**
+- **How configuration enables local development → production deployment**
+- **The relationship between catalog metadata and static site generation**
+
+### **📖 Documentation Architecture**
+
+Our documentation follows the [Diátaxis framework](https://diataxis.fr/) for maximum learning effectiveness:
+
+```
+docs/
+├── explanation/          # WHY we built it this way
+│   ├── concepts/         # Core architectural concepts
+│   ├── case-studies/     # Real-world experiences  
+│   └── neuralake.md      # High-level philosophy
+├── tutorials/            # HOW to build it yourself  
+│   ├── 01-foundations-lakehouse-ingestion.md
+│   └── 02-catalog-system-walkthrough.md
+├── how-to/              # PRACTICAL guides for specific tasks
+│   ├── setup-taskmaster.md
+│   └── upgrade_dev_to_prod.md
+└── reference/           # TECHNICAL specifications
+    ├── api/             # API documentation
+    └── changelogs/      # Complete change history
+```
 
 ## Project Structure & Documentation
 
@@ -61,10 +111,16 @@ This repository follows a structured layout to separate concerns and make the pr
     -   `tutorials/`: Learning-oriented, hands-on walkthroughs.
     -   `reference/`: Technical descriptions, API documentation, and changelogs.
 -   `neuralake/`: Contains the core Neuralake demonstration project.
-    -   `src/`: Python source code for the data platform (`my_tables.py`, `my_catalog.py`, `query_data.py`, `config.py`).
+    -   `src/`: Python source code for the data platform (`demo_catalog.py`, `my_catalog.py`, `query_data.py`, `config.py`).
     -   `scripts/`: Utility and verification scripts (`production_verification.py`, `create_sample_data.py`).
     -   `pyproject.toml` & `poetry.lock`: Poetry configuration for managing dependencies.
 -   `README.md`: This file, providing an overview of the entire playground.
+
+## The Core Philosophy
+
+The core philosophy is building **Simple Systems for Complex Data**, centered on two key ideas:
+1.  **Code-as-Catalog:** The entire data landscape is defined, versioned, and queried as code. No GUIs, no separate services, no stale documentation. The code is the single source of truth.
+2.  **Lightweight, Performant Tooling:** The stack is built on a foundation of Rust-based libraries (`polars`, `datafusion`) for maximum performance and a modern Python toolchain (`poetry`, `uv`) for a superior developer experience.
 
 ## What Makes This Project Special: Neuralink's Architecture
 
@@ -90,6 +146,72 @@ We're implementing the **exact** data engineering patterns described by Neuralin
 5. **Performance Benchmarking** (Comparing "surgical strike" vs "workhorse" engines)
 
 **📖 For the complete technical deep-dive, see [docs/explanation/neuralake.md](./docs/explanation/neuralake.md)**
+
+## 🚀 **Working Demo: "Code as a Catalog" System**
+
+Our catalog system demonstrates the complete philosophy in action. See it working:
+
+### **Browse the Live Demo Catalog**
+
+The Static Site Generator (SSG) creates beautiful, interactive documentation from your table definitions:
+
+```bash
+cd neuralake
+python scripts/generate_demo_catalog_site.py
+
+# Open demo-catalog-site/index.html in your browser
+# Or serve it locally:
+cd demo-catalog-site && python3 -m http.server 8080
+# Then visit: http://localhost:8080
+```
+
+**What you'll see:**
+- 📊 **Interactive Table Browser**: Search, filter, and explore all tables
+- 🔍 **Rich Table Details**: Schemas, examples, metadata, owner information
+- 📋 **Copy-Paste Code**: Working Python examples for every table
+- 🛠️ **API Reference**: Complete documentation with live examples
+- 🏷️ **Tag-Based Organization**: Tables organized by functionality
+
+### **Example Tables Available**
+
+**Function Tables** (Dynamic, code-generated):
+- `users` - Enterprise user data with comprehensive profiles
+- `user_events` - Real-time event stream with user interactions  
+- `neural_signals` - Neural signal recordings from research experiments
+- `data_quality_metrics` - Data quality monitoring and validation results
+
+**Static Tables** (Delta Lake with ACID guarantees):
+- `transactions` - Financial transaction records with audit trails
+- `inventory` - Real-time inventory tracking with warehouse locations
+
+### **Unified Query Interface**
+
+Despite different storage types, everything uses the same Polars LazyFrame interface:
+
+```python
+from catalog_core import Catalog
+catalog = Catalog()
+
+# All return Polars LazyFrames - same interface regardless of source
+users = catalog.table("users")                    # Function table
+events = catalog.table("user_events")             # Function table  
+transactions = catalog.table("transactions")      # Delta table
+inventory = catalog.table("inventory")            # Delta table
+
+# Same query patterns work across all types
+analysis = (
+    users
+    .join(events, on="user_id")
+    .join(transactions, on="user_id")
+    .filter(pl.col("is_active") == True)
+    .group_by("user_type")
+    .agg([
+        pl.count().alias("user_count"),
+        pl.col("amount").sum().alias("total_spent")
+    ])
+    .collect()  # Only executes when you call .collect()
+)
+```
 
 ## An AI-Native Development Philosophy
 
@@ -141,6 +263,103 @@ For setup instructions, see the **[How to Set Up Taskmaster Guide](./docs/how-to
 ## The Neuralake Demo: A Code-First Data Platform
 
 The `neuralake/` directory contains a working demonstration that brings the "Code-as-Catalog" and "Lightweight Tooling" principles to life.
+
+### 📁 **Source Architecture Breakdown (`neuralake/src/`)**
+
+Our `src/` directory implements a **layered architecture** following the "Code as a Catalog" philosophy:
+
+```
+┌─────────────────────────────────────────────────┐
+│             📊 Application Layer                │
+├─────────────────────────────────────────────────┤
+│   demo_catalog.py   │   my_catalog.py           │
+│   my_tables.py      │   query_data.py           │
+└─────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────┐
+│             🌐 Documentation Layer              │
+├─────────────────────────────────────────────────┤
+│              ssg.py (32KB)                      │
+│        Static Site Generator                    │
+└─────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────┐
+│              📚 Catalog Layer                   │
+├─────────────────────────────────────────────────┤
+│            catalog_core.py (11KB)               │
+│         @table decorator + Registry             │
+└─────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────┐
+│              🗄️ Data Layer                      │
+├─────────────────────────────────────────────────┤
+│  delta_tables.py  │  delta_config.py            │
+│     (13KB)        │     (6KB)                   │
+└─────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────┐
+│           ⚙️ Infrastructure Layer               │
+├─────────────────────────────────────────────────┤
+│             config.py (21KB)                    │
+│     Environment + S3 + Security                │
+└─────────────────────────────────────────────────┘
+```
+
+#### **Key Files Explained:**
+
+**🏗️ Infrastructure Foundation:**
+- **`config.py` (21KB)**: Production-ready configuration management
+  - Environment-aware: `LOCAL`, `DEVELOPMENT`, `STAGING`, `PRODUCTION`
+  - Security: Credential management, encryption settings
+  - Performance: Connection pools, caching, parallelism controls
+  - Data Quality: Validation thresholds, schema enforcement
+
+**🗄️ Data Management:**
+- **`delta_tables.py` (13KB)**: Delta Lake wrapper with ACID guarantees
+  - Transactional operations: `create_table()`, `insert()`, `query()`
+  - Time travel queries and audit trails
+  - Schema evolution and optimization
+- **`delta_config.py` (6KB)**: Delta Lake-specific configurations
+
+**📚 Catalog Engine:**
+- **`catalog_core.py` (11KB)**: Heart of "Code as a Catalog" system
+  - `@table` decorator for auto-discovery
+  - `CatalogRegistry` for metadata management
+  - Unified `pl.LazyFrame` interface for all table types
+
+**🌐 Documentation Generation:**
+- **`ssg.py` (32KB)**: Static Site Generator (largest file)
+  - Interactive HTML catalog with search/filtering
+  - Auto-generated API documentation
+  - Copy-paste code examples
+  - Modern responsive design
+
+**📊 Application Examples:**
+- **`demo_catalog.py` (11KB)**: Comprehensive demo with 6 tables
+  - Function tables: `users`, `events`, `neural_signals`, `quality_metrics`
+  - Static tables: `transactions`, `inventory`
+  - Rich metadata with schemas, partitions, ownership
+- **`my_tables.py` (5.5KB)**: Production patterns example
+- **`my_catalog.py` (1.6KB)**: Simple catalog setup
+- **`query_data.py` (5.4KB)**: Usage examples and patterns
+
+#### **🔄 Data Flow Through Architecture:**
+
+```
+1. 📝 Define Tables
+   └── @table decorator or register_static_table()
+
+2. 📚 Auto-Registration  
+   └── CatalogRegistry stores metadata + functions
+
+3. 🔍 Query Interface
+   └── catalog.table("name") → pl.LazyFrame
+
+4. 📊 Unified API
+   └── All tables return Polars LazyFrames
+
+5. 🌐 Documentation
+   └── SSG generates browsable HTML docs
+
+6. 🔧 Configuration
+   └── Environment-aware settings drive behavior
+```
 
 ### Key Architectural Patterns Demonstrated:
 
@@ -217,6 +436,22 @@ poetry run python src/query_data.py
 poetry run python scripts/production_verification.py
 ```
 
+### 5. Generate and Browse the Catalog Site
+
+```bash
+# Generate the interactive catalog documentation
+poetry run python scripts/generate_demo_catalog_site.py
+
+# Open in browser - two options:
+
+# Option 1: Direct file access
+open demo-catalog-site/index.html
+
+# Option 2: Local web server (recommended)
+cd demo-catalog-site && python3 -m http.server 8080
+# Then visit: http://localhost:8080
+```
+
 ### Expected Output
 
 If everything is working, `poetry run python src/query_data.py` will show:
@@ -263,85 +498,6 @@ bash setup_minio.sh
 ```
 
 **"Cannot connect to Docker daemon"**: Start Docker Desktop application first.
-
-## Browsable Catalog Site (SSG - Static Site Generator)
-
-One of the key features of this project is the **"Code as a Catalog"** system with auto-generated documentation. The Static Site Generator (SSG) creates a beautiful, browsable HTML catalog from your table definitions.
-
-### Generate the Catalog Site
-
-There are multiple ways to generate the browsable catalog site:
-
-**Option 1: Using the dedicated script (Recommended)**
-```bash
-# Generate demo catalog site with all tables
-cd neuralake
-poetry run python scripts/generate_demo_catalog_site.py
-
-# The site will be generated in 'demo-catalog-site/' directory
-# Open demo-catalog-site/index.html in your browser
-```
-
-**Option 2: Using Python directly**
-```bash
-cd neuralake
-poetry run python -c "from src.my_catalog import generate_catalog_site; generate_catalog_site()"
-
-# The site will be generated in 'catalog-site/' directory  
-# Open catalog-site/index.html in your browser
-```
-
-**Option 3: Using the demo_catalog module**
-```bash
-cd neuralake
-poetry run python -c "from src.demo_catalog import generate_demo_catalog_site; generate_demo_catalog_site()"
-```
-
-### What's in the Catalog Site
-
-The generated site includes:
-
-- **📊 Table Listing**: All tables with descriptions, types, and metadata
-- **🔍 Search & Filtering**: Search tables by name, description, or tags
-- **📋 Table Details**: Individual pages for each table with:
-  - Complete schema information
-  - Sample queries and code snippets
-  - Metadata (owner, creation date, tags)
-  - Copy-paste Python code examples
-- **🛠️ API Reference**: Complete Python API documentation
-- **📈 Analytics**: Table counts, schema summaries
-
-### Demo Tables Available
-
-The demo catalog includes several example tables showcasing different patterns:
-
-**Function Tables** (Generated from Python functions):
-- `users` - Enterprise user data with profiles
-- `user_events` - Real-time event stream data  
-- `neural_signals` - Neural signal recordings from experiments
-- `data_quality_metrics` - Data quality monitoring results
-
-**Static Tables** (Delta Lake / Parquet):
-- `transactions` - Financial transaction records
-- `inventory` - Real-time inventory tracking
-
-### Extending the Catalog
-
-Add your own tables by:
-
-1. **Function Tables**: Use the `@table` decorator in `src/demo_catalog.py`
-2. **Static Tables**: Use `register_static_table()` for existing data sources
-3. **Generate Site**: Run the SSG script to update the documentation
-
-Example:
-```python
-from src.catalog_core import table
-import polars as pl
-
-@table(description="My custom data", tags=["custom", "demo"])
-def my_table():
-    return pl.LazyFrame({"id": [1, 2], "value": ["a", "b"]})
-```
 
 ## Code Quality
 
@@ -407,7 +563,8 @@ poetry run ruff check .
 *   **🎯 MOST IMPORTANT: Check `.taskmaster/tasks/tasks.json`** to see our complete roadmap with detailed status
 *   **📋 Use TaskMaster via MCP:** If you have the MCP server set up in your IDE, you can interact with tasks via natural language
 *   **🏗️ Working Foundation (Tasks 1-5):** Complete S3/MinIO integration, Delta Lake, Code-as-Catalog system, CI/CD pipeline
-*   **📚 Browse Documentation:** Read the detailed architectural breakdown in **[docs/explanation/neuralake.md](./docs/explanation/neuralake.md)**
+*   **📚 Educational Resources:** Complete learning path for engineers from concepts to production
+*   **🌐 Interactive Catalog:** Browse the generated catalog site to see "Code as a Catalog" in action
 *   **🔍 View Changelogs:** Check **[docs/reference/changelogs/](./docs/reference/changelogs/)** to see exactly what's been built
 
 **Development Opportunities:**
