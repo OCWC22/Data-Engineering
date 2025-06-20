@@ -126,12 +126,165 @@ part = ParquetTable(
 )
 ```
 
-#### Official Guidance for All Engineers
+## 5. Strategic Architectural Decision: The Hybrid Approach
 
-1.  **Trust, but Verify:** Treat all external documentation, especially for fast-moving or pre-release projects, as a helpful guide, not as infallible law.
-2.  **The Error is Your Friend:** A traceback is not a sign of failure; it is the system giving you precise, valuable data. Read it carefully from top to bottom.
-3.  **Master Introspection:** The `help()` function and your IDE's "Go to Definition" feature are your most powerful tools. When in doubt, ask the object itself what its rules are.
-4.  **Codify Your Learnings:** When a problem like this is solved, the solution must be documented and shared, as we are doing here. This prevents the next engineer from losing time on the same issue and builds our collective knowledge base.
+The debugging experience with `neuralake==0.0.5` revealed deeper strategic considerations beyond just fixing the immediate API issue. This incident became a catalyst for making a critical architectural decision that would shape our entire "Code as a Catalog" implementation.
+
+### The Problem With Full Neuralake Dependency
+
+The debugging session exposed several concerning patterns:
+
+1. **API Instability**: Documentation didn't match implementation in a foundational library
+2. **Breaking Changes Risk**: Future neuralake updates could break our catalog system
+3. **Limited Control**: We couldn't easily customize behavior or add features
+4. **Debugging Difficulty**: Black-box library with limited introspection capabilities
+
+### The Hybrid Architecture Solution
+
+Rather than abandoning neuralake entirely or becoming fully dependent on it, we adopted a **strategic hybrid approach**:
+
+#### **Custom Core + Selective Neuralake Integration**
+
+```python
+# Our Custom Catalog Core (catalog_core.py)
+from typing import Dict, Any, Optional, List, Callable
+import polars as pl
+
+@dataclass
+class TableMetadata:
+    """Our own stable metadata structure."""
+    name: str
+    table_type: TableType
+    description: str = ""
+    schema: Optional[Dict[str, str]] = None
+    # ... our own fields, our own API
+
+def table(name: Optional[str] = None, 
+         description: str = "",
+         schema: Optional[Dict[str, str]] = None,
+         tags: List[str] = None,
+         owner: str = ""):
+    """Our own @table decorator with stable API."""
+    def decorator(func: Callable) -> Callable:
+        # Our implementation - won't break with neuralake updates
+        return func
+    return decorator
+
+# Selective Neuralake Usage (only where it adds value)
+from neuralake.core import ParquetTable  # Only for Delta Lake integration
+
+def register_static_table(table_obj, name: str, **kwargs):
+    """Use neuralake objects where beneficial, wrap with our interface."""
+    if isinstance(table_obj, ParquetTable):
+        # Use neuralake for complex Delta/Parquet features
+        # But wrap with our stable API
+        pass
+```
+
+### Strategic Benefits of the Hybrid Approach
+
+#### **1. API Stability**
+- **Our `@table` decorator API** won't break with neuralake updates
+- **Team uses consistent interface** regardless of underlying implementation
+- **Smooth migration path** if we need to change dependencies later
+
+#### **2. Performance Optimization**
+- **Direct Polars LazyFrames** for function tables (no neuralake overhead)
+- **Neuralake only for complex features** like Delta Lake integration
+- **Minimal abstraction layers** where performance matters
+
+#### **3. Development Velocity**
+- **Add features immediately** without waiting for neuralake releases
+- **Custom SSG implementation** tailored to our specific needs
+- **Rich metadata support** beyond what neuralake provides
+
+#### **4. Risk Mitigation**
+- **Isolated failure modes** - neuralake issues don't break our core system
+- **Gradual independence path** - can remove neuralake dependency if needed
+- **Vendor lock-in avoidance** - not tied to external library roadmap
+
+### Implementation Architecture
+
+Our final hybrid architecture strategically partitions responsibilities:
+
+```
+┌─────────────────────────────────────────────────┐
+│              Our Custom Layer                   │
+├─────────────────────────────────────────────────┤
+│ • catalog_core.py - Stable @table decorator    │
+│ • demo_catalog.py - Rich function tables       │  
+│ • ssg.py - Custom static site generator        │
+│ • Polars-native LazyFrame support             │
+└─────────────────────────────────────────────────┘
+                         │
+                         ▼
+┌─────────────────────────────────────────────────┐
+│            Selective Neuralake Usage            │
+├─────────────────────────────────────────────────┤
+│ • Delta Lake integration only                   │
+│ • Complex Parquet table features               │
+│ • S3 credential handling                       │
+└─────────────────────────────────────────────────┘
+```
+
+### Long-term Strategic Value
+
+#### **Phase 1: Hybrid Success** ✅ (Current)
+- Leverage neuralake for Delta Lake complexity
+- Our catalog_core.py for everything else
+- Stable API for the team to use
+
+#### **Phase 2: Gradual Independence** (Future Option)
+- Monitor neuralake development and API stability
+- Evaluate if benefits still outweigh risks
+- Ready to replace with delta-rs directly if needed
+
+#### **Phase 3: Full Independence** (If Required)
+- Complete ownership of the entire stack
+- Custom Delta Lake integration using delta-rs
+- Zero external dependencies for catalog functionality
+
+### Lessons for Future Architecture Decisions
+
+This debugging experience established key principles for external dependency evaluation:
+
+1. **Start with Minimal Integration**: Use external libraries for specific value-add features only
+2. **Maintain API Control**: Always wrap external APIs with your own stable interface
+3. **Plan for Independence**: Design systems that can evolve away from dependencies
+4. **Performance First**: Don't accept abstraction overhead without clear benefits
+5. **Team Experience Priority**: Optimize for developer productivity and debugging ease
+
+### The Business Impact
+
+The hybrid approach delivered immediate and long-term value:
+
+**Immediate Benefits:**
+- ✅ **Unblocked development** - Fixed API issues without waiting for neuralake updates
+- ✅ **Stable team interface** - `@table` decorator API that won't change
+- ✅ **Performance gains** - Direct Polars integration for function tables
+
+**Strategic Benefits:**
+- ✅ **Risk mitigation** - Not dependent on external library roadmap
+- ✅ **Customization freedom** - Can add features specific to our needs
+- ✅ **Future flexibility** - Can evolve architecture as requirements change
+
+## 6. Official Guidance for All Engineers
+
+The debugging experience and subsequent architectural decisions established these engineering principles:
+
+1. **Trust, but Verify**: Treat all external documentation, especially for fast-moving or pre-release projects, as a helpful guide, not as infallible law.
+
+2. **The Error is Your Friend**: A traceback is not a sign of failure; it is the system giving you precise, valuable data. Read it carefully from top to bottom.
+
+3. **Master Introspection**: The `help()` function and your IDE's "Go to Definition" feature are your most powerful tools. When in doubt, ask the object itself what its rules are.
+
+4. **Design for Independence**: When integrating external libraries, always maintain control of your core API. Wrap external dependencies with your own stable interface.
+
+5. **Performance Consciousness**: Don't accept abstraction overhead without clear benefits. Direct library usage often outperforms heavy abstraction layers.
+
+6. **Strategic Debugging**: When you encounter API issues with external libraries, consider whether this indicates a need for architectural independence rather than just fixing the immediate problem.
+
+7. **Codify Your Learnings**: When a problem like this is solved, the solution and the strategic thinking must be documented and shared. This prevents the next engineer from losing time on the same issue and builds our collective knowledge base.
 
 
 Of course! Here is the provided text formatted into a clean and correct Markdown file.
