@@ -1,6 +1,8 @@
-# Data Engineering Playground: A Blueprint for Modern Data Platforms
+# Production Data Engineering Simulation
 
-This repository is a hands-on playground for exploring the next generation of data engineering. It provides a tangible, runnable blueprint based on the architectural principles of high-performance data platforms like Neuralink's Neuralake.
+This repository is for learning how to build production grade enterprise level data engineering. It provides a tangible, runnable blueprint based on the architectural principles of high-performance data platforms like Neuralink's Neuralake.
+
+https://www.youtube.com/watch?v=rVSb0u9OTtM&t=763s
 
 The core philosophy is building **Simple Systems for Complex Data**, centered on two key ideas:
 1.  **Code-as-Catalog:** The entire data landscape is defined, versioned, and queried as code. No GUIs, no separate services, no stale documentation. The code is the single source of truth.
